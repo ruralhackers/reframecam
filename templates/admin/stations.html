@@ -1,0 +1,53 @@
+{% extends "admin/layout.html" %}
+
+{% block admin_page_title %}Estaciones{% endblock %}
+
+{% block admin_page_actions %}
+  <a class="admin__btn admin__btn--lead-icon" href="/admin/{{ admin_slug }}/stations/new">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5 12h14"/>
+      <path d="M12 5v14"/>
+    </svg>
+    Nueva estación
+  </a>
+{% endblock %}
+
+{% block admin_content %}
+  {% if notice == "saved" %}
+    <div class="admin-toast" role="status" data-admin-toast>
+      <span class="admin-toast__msg">Estación guardada.</span>
+      <button type="button" class="admin-toast__close" aria-label="Cerrar">&times;</button>
+    </div>
+  {% elif notice == "archived" %}
+    <div class="admin-toast" role="status" data-admin-toast>
+      <span class="admin-toast__msg">Estación archivada.</span>
+      <button type="button" class="admin-toast__close" aria-label="Cerrar">&times;</button>
+    </div>
+  {% endif %}
+  {% if view.groups %}
+    {% for group in view.groups %}
+      <h2 class="admin-section-label">{{ group.label }}</h2>
+      <ul class="admin__list" role="list">
+        {% for st in group.stations %}
+          <li class="admin__row admin__row--simple">
+            <div class="admin__meta">
+              <p class="admin__station">
+                {{ st.name }}
+                <span class="admin__status admin__status--{{ st.status }}">{{ st.status_label }}</span>
+              </p>
+              <p class="admin__date">{{ st.location_name }}</p>
+            </div>
+            <a class="admin__btn admin__btn--ghost admin__btn--icon" href="{{ st.edit_href }}" aria-label="Editar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                <path d="m15 5 4 4"/>
+              </svg>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  {% else %}
+    <p class="admin__empty">Aún no hay estaciones.</p>
+  {% endif %}
+{% endblock %}

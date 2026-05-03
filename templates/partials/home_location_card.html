@@ -1,0 +1,18 @@
+{# Homepage location card — framed photo + script-name caption, mirroring
+   the about-section figure (border, padding around the photo, no radius on
+   the photo itself). Expects a `card` dict from views.location_card_view(). #}
+<a class="home-location-card" href="{{ card.href }}">
+  <div class="home-location-card__media">
+    {% if card.has_photos %}
+      <img
+        class="home-location-card__image"
+        src="{{ card.thumb_url }}"
+        alt=""
+        loading="lazy"
+        width="400"
+        height="300"
+      />
+    {% endif %}
+  </div>
+  <div class="home-location-card__caption">{{ card.name }}</div>
+</a>

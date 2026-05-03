@@ -1,0 +1,245 @@
+{# Upload section (spec §6).
+   Always-visible heading per §6.1; the inner state-shells are toggled by
+   `static/js/upload.js` between picker / preview / uploading / validating /
+   success / failure (§6.2). The anchor id matches the §3.4 QR target —
+   `subir` in Spanish, `upload` in English.
+
+   Expects `upload` from views.station_view(); never absent. #}
+{% set u = station.upload %}
+<section
+  class="upload"
+  data-upload-root
+  data-upload-state="picker"
+  aria-labelledby="upload-heading"
+>
+  <header class="upload__header">
+    <h2 id="upload-heading" class="upload__heading">{{ u.section_heading }}</h2>
+    <p class="upload__body">{{ u.section_body }}</p>
+  </header>
+
+  {# State 1 — picker (§6.3). The <input>s are hidden; the visible signal-styled
+     <label>s are the click targets so we don't have to override browser file-
+     input chrome. `accept` is a hint, not a hard filter — server-side
+     validation still runs (§7.3).
+
+     Two pickers: the gallery input has no `capture` attribute (so iOS Safari
+     shows its native Photo Library / Take Photo / Choose Files sheet); the
+     camera input has `capture="environment"` to force the rear-lens camera on
+     Android. On iOS the camera button is redundant (the native sheet already
+     offers Take Photo), so upload.js adds an `is-ios` class to the section
+     root and CSS hides `.upload__cta--camera` on that platform. #}
+  <div class="upload__state upload__state--picker" data-upload-state-picker>
+    <div class="upload__cta-row" data-upload-cta-row>
+      <input
+        class="upload__file-input"
+        type="file"
+        id="upload-file-input"
+        data-upload-input
+        accept="image/jpeg,image/png,image/heic,image/heif"
+        hidden
+      />
+      <label
+        class="upload__cta upload__cta--primary"
+        for="upload-file-input"
+        data-upload-pick-label
+      >{{ u.picker_cta }}</label>
+
+      <input
+        class="upload__file-input"
+        type="file"
+        id="upload-camera-input"
+        data-upload-input
+        accept="image/jpeg,image/png,image/heic,image/heif"
+        capture="environment"
+        hidden
+      />
+      <label
+        class="upload__cta upload__cta--secondary upload__cta--camera"
+        for="upload-camera-input"
+      >{{ u.picker_cta_camera }}</label>
+    </div>
+
+    <p class="upload__ack">{{ u.picker_ack }}<br><button
+        type="button"
+        class="upload__ack-link"
+        data-upload-ack-toggle
+        aria-expanded="false"
+        aria-controls="upload-ack-panel"
+      >{{ u.picker_ack_link }}</button></p>
+
+    <div
+      class="upload__ack-panel"
+      id="upload-ack-panel"
+      data-upload-ack-panel
+      hidden
+    >
+      <p class="upload__ack-panel-body">{{ u.picker_panel_body|safe }}</p>
+      <button
+        type="button"
+        class="upload__ack-panel-close"
+        data-upload-ack-close
+      >{{ u.picker_ack_close }}</button>
+    </div>
+  </div>
+
+  {# State 2 — preview + confirm (§6.4). Hidden until a file is selected;
+     16:9 letterboxed preview (object-fit: contain) so the user sees the
+     whole frame, not a crop (§6.4). #}
+  <div class="upload__state upload__state--preview" data-upload-state-preview hidden>
+    <h3 class="upload__sub-heading">{{ u.preview_heading }}</h3>
+    <div class="upload__preview-frame" data-upload-preview-frame>
+      <img
+        class="upload__preview-image"
+        data-upload-preview-image
+        alt=""
+        width="1200"
+        height="675"
+      />
+      <p
+        class="upload__preview-no-preview"
+        data-upload-preview-no-preview
+        hidden
+      >{{ u.preview_no_preview }}</p>
+    </div>
+    <div class="upload__actions">
+      <button
+        type="button"
+        class="upload__cta upload__cta--primary"
+        data-upload-confirm
+      >{{ u.preview_confirm }}</button>
+      <button
+        type="button"
+        class="upload__cta upload__cta--secondary"
+        data-upload-change
+      >{{ u.preview_change }}</button>
+    </div>
+  </div>
+
+  {# State 3 — uploading (§6.6). Real progress bar driven by XHR onprogress —
+     no faked percentages. #}
+  <div class="upload__state upload__state--uploading" data-upload-state-uploading hidden>
+    <div class="upload__preview-frame upload__preview-frame--greyed" data-upload-preview-frame>
+      <img
+        class="upload__preview-image"
+        data-upload-uploading-image
+        alt=""
+        width="1200"
+        height="675"
+      />
+      <p
+        class="upload__preview-no-preview"
+        data-upload-preview-no-preview
+        hidden
+      >{{ u.preview_no_preview }}</p>
+    </div>
+    <div
+      class="upload__progress"
+      role="progressbar"
+      aria-label="{{ u.progress_aria }}"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+      data-upload-progress
+    >
+      <div class="upload__progress-fill" data-upload-progress-fill style="width: 0%"></div>
+    </div>
+    <p class="upload__pill" data-upload-pill aria-live="polite"></p>
+  </div>
+
+  {# State 4 — validating (§9.5). Centered overlay panel over the preview
+     image so the check feels like it's being performed on the photo itself.
+     Held for at least 1500ms by upload.js so fast server fast-paths don't
+     blink past. #}
+  <div class="upload__state upload__state--validating" data-upload-state-validating hidden>
+    <div class="upload__preview-frame upload__preview-frame--with-overlay" data-upload-preview-frame>
+      <img
+        class="upload__preview-image"
+        data-upload-validating-image
+        alt=""
+        width="1200"
+        height="675"
+      />
+      <p
+        class="upload__preview-no-preview"
+        data-upload-preview-no-preview
+        hidden
+      >{{ u.preview_no_preview }}</p>
+      <div class="upload__validating-overlay" role="status" aria-live="polite">
+        <span
+          class="upload__spinner upload__spinner--large"
+          aria-hidden="true"
+          data-upload-spinner
+        ></span>
+        <span class="visually-hidden">{{ u.spinner_aria }}</span>
+        <p class="upload__validating-status">{{ u.validating_status }}</p>
+        <p class="upload__validating-sub">{{ u.validating_sub }}</p>
+      </div>
+    </div>
+  </div>
+
+  {# State 5a — success (§6.7). Deep-green filled card, centred checkmark
+     badge, heading + mono date + body line + view-timelapse CTA. The viewer
+     above already live-updates via window.ReFrameViewer.append() for
+     stations with prior photos; the CTA scrolls there. For the 0→1 case
+     the viewer hasn't been bootstrapped, so the CTA reloads to #viewer
+     instead. JS picks the right behaviour per page state. #}
+  <div class="upload__state upload__state--success" data-upload-state-success hidden>
+    <div class="upload__success" role="status">
+      <span class="upload__success-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <polyline
+            points="4,12 10,18 20,6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </span>
+      <h3 class="upload__success-heading" data-upload-success-heading></h3>
+      <p class="upload__success-date" data-upload-success-date></p>
+      <p class="upload__success-body" data-upload-success-body></p>
+      <button
+        type="button"
+        class="upload__cta upload__cta--on-deep"
+        data-upload-success-view
+      ></button>
+    </div>
+  </div>
+
+  {# State 5b — failure (§6.5). Signal-red filled card with paper alert badge.
+     One shell — JS swaps body and CTA per error code. #}
+  <div class="upload__state upload__state--failure" data-upload-state-failure hidden>
+    <div class="inline-notice" role="alert" data-upload-failure-notice>
+      <span class="inline-notice__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path
+            d="M12 3 L22 21 L2 21 Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linejoin="round"
+          />
+          <line
+            x1="12" y1="10" x2="12" y2="15"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+          />
+          <circle cx="12" cy="18" r="1.2" fill="currentColor" />
+        </svg>
+      </span>
+      <p class="inline-notice__body" data-upload-failure-body></p>
+      <button
+        type="button"
+        class="upload__cta upload__cta--on-signal"
+        data-upload-failure-cta
+      ></button>
+    </div>
+  </div>
+
+  {# JSON payload consumed by static/js/upload.js. Inline (no fetch) for the
+     same reasons as the viewer — small, render-time, no extra round-trip. #}
+  <script type="application/json" data-upload-payload>{{ u.payload|tojson }}</script>
+</section>

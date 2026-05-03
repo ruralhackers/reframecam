@@ -1,0 +1,29 @@
+[project]
+name = "reframe"
+version = "0.1.0"
+description = "ReFrame — community repeat-photography project for Rural Hackers."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi==0.115.5",
+    "uvicorn[standard]==0.32.1",
+    "jinja2==3.1.4",
+    "python-multipart==0.0.18",
+    "pillow==12.2.0",
+    "pillow-heif==1.3.0",
+    "opencv-python-headless==4.10.0.84",
+    "python-dotenv==1.0.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==8.3.4",
+    "pytest-cov==6.0.0",
+    "httpx==0.28.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["app"]

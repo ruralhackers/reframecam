@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block scripts %}
+  {# Both modules are loaded `defer` so they don't block first paint, and only
+     on station pages where they have work to do (§5.5 / §6 / §8.3). #}
+  <script defer src="/static/js/viewer.js"></script>
+  <script defer src="/static/js/upload.js"></script>
+  {% if station.map_marker %}
+    {# Leaflet only loads when the station has coordinates. Self-hosted under
+       /static/vendor; OpenStreetMap serves tiles. #}
+    <link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css" />
+    <script defer src="/static/vendor/leaflet/leaflet.js"></script>
+    <script defer src="/static/js/locations-map.js"></script>
+  {% endif %}
+{% endblock %}
+
+{% block main %}
+  {# Hero — H1 + meta line + framed image (the timelapse viewer when the
+     station has photos; a placeholder figure for the cold start). #}
+  {% include "partials/station_hero.html" %}
+
+  {# About — Anton heading + body + stats line (§5.3). When the station has
+     coordinates, a square Leaflet map sits to the right of the text at 1/3
+     of the column width (text takes 2/3); below 640px the map drops below. #}
+  <section class="station-story">
+    <div class="station-story__inner">
+      <div class="station-story__text">
+        <h2 class="station-story__heading">{{ t('station.story.heading', lang) }}</h2>
+        <p class="station-story__body">{{ station.story }}</p>
+        <p class="station-story__stats"
+           data-station-stats
+           {% if station.stats.template %}
+           data-stats-template="{{ station.stats.template }}"
+           data-stats-count="{{ station.stats.count }}"
+           data-stats-month="{{ station.stats.month }}"
+           data-stats-year="{{ station.stats.year }}"
+           {% endif %}
+        >{{ station.stats.text }}</p>
+      </div>
+      {% if station.map_marker %}
+        <figure class="station-story__map-frame">
+          <div
+            class="locations-map station-story__map"
+            aria-label="{{ t('locations.map_aria', lang) }}"
+            data-map-hint="{{ t('locations.map_hint', lang) }}"
+          ></div>
+          <script type="application/json" data-locations-payload>{{ [station.map_marker] | tojson }}</script>
+        </figure>
+      {% endif %}
+    </div>
+  </section>
+
+  {# Upload section (§6). Anton heading + body + state shells, wrapped in a
+     dark-green card (mirror of .home-setup) so the CTA is visually
+     unmissable on every station, photos or not. #}
+  <section class="station-upload" id="{{ station.upload.anchor_id }}">
+    <div class="station-upload__inner">
+      {% include "partials/upload.html" %}
+    </div>
+  </section>
+
+  {# Other stations — uses the same home_location_card partial /locations
+     uses (§3.6). Scoped to siblings in the same location; hidden when none. #}
+  {% if station.others %}
+    <section class="station-others" id="otros">
+      <div class="station-others__inner">
+        <h2 class="station-others__heading">{{ station.others_heading }}</h2>
+        <ul class="station-others__cards" role="list">
+          {% for card in station.others %}
+            <li class="station-others__card-item">
+              {% include "partials/home_location_card.html" %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

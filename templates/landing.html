@@ -1,0 +1,263 @@
+{% extends "base.html" %} {# The wavy mask under the nav bar is homepage-only —
+it hands off into the hero. Other pages get a clean horizontal bar. #} {% set
+show_header_mask = true %} {% block scripts %}
+<script defer src="/static/js/home.js"></script>
+<script defer src="/static/js/reveal.js"></script>
+{% endblock %} {% block main %} {# 1 — Hero. Full-screen video background with
+parallax (driven by home.js while prefers-reduced-motion is off), centred
+content block, and a wavy bottom mask that hands off into the About section. #}
+<section class="home-hero" id="top">
+  <img
+    class="home-hero__poster"
+    data-home-hero-poster
+    src="/static/img/hero-poster.jpg"
+    alt=""
+    aria-hidden="true"
+    fetchpriority="high"
+    decoding="async"
+  />
+  <video
+    class="home-hero__video"
+    data-home-hero-video
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="metadata"
+  >
+    <source src="/static/img/hero-video.mp4" type="video/mp4" />
+  </video>
+  <div class="home-hero__overlay" aria-hidden="true"></div>
+
+  <div class="home-hero__content" data-reveal-on-load>
+    <div class="home-hero__logo">{% include "partials/logo.html" %}</div>
+    <p class="home-hero__badge">{{ t('landing.hero.badge', lang) }}</p>
+    <h1 class="home-hero__heading">{{ site.name }}</h1>
+    <p class="home-hero__tagline">{{ t('landing.hero.tagline', lang) }}</p>
+    <a
+      class="home-hero__scroll-cue"
+      href="#about"
+      aria-label="Scroll to the next section"
+    >
+      <svg
+        viewBox="0 0 18 20"
+        width="18"
+        height="20"
+        aria-hidden="true"
+        focusable="false"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M2 4 L9 10 L16 4" />
+        <path d="M2 12 L9 18 L16 12" />
+      </svg>
+    </a>
+  </div>
+
+  <svg
+    class="home-hero__mask"
+    viewBox="0 0 1512 98"
+    preserveAspectRatio="none"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path
+      fill="currentColor"
+      d="M0 42L31.5 32L63 47L94.5 40L126 54L157.5 44L189 48L220.5 34L252 50L283.5 40L315 28L346.5 36L378 20L409.5 42L441 52L472.5 64L504 58L535.5 70L567 62L598.5 72L630 68L661.5 78L693 90L724.5 84L756 98L787.5 92L819 80L850.5 72L882 54L913.5 46L945 24L976.5 38L1008 32L1039.5 48L1071 60L1102.5 50L1134 68L1165.5 62L1197 48L1228.5 56L1260 40L1291.5 48L1323 34L1354.5 42L1386 24L1417.5 32L1449 18L1480.5 10L1512 0V162H0V42Z"
+    />
+  </svg>
+</section>
+
+{# 2 — Intro. Centred "What is ReFrame?" — plain-language explanation of the
+mechanic. Sits on the lightest off-white; the About section below uses a subtly
+darker off-white to give the two light bands a step. #}
+<section class="home-intro" id="about-project">
+  <div class="home-intro__inner" data-reveal>
+    <figure class="home-intro__figure">
+      <div class="home-intro__image-frame">
+        <img
+          class="home-intro__image"
+          src="/static/img/project.jpg"
+          alt="{{ t('landing.intro.image_alt', lang) }}"
+          width="740"
+          height="416"
+          loading="lazy"
+        />
+      </div>
+    </figure>
+    <p class="section-label">
+      <span class="section-label__rule" aria-hidden="true"></span>
+      <span class="section-label__text"
+        >{{ t('landing.intro.label', lang) }}</span
+      >
+      <span class="section-label__rule" aria-hidden="true"></span>
+    </p>
+    <h2 class="home-intro__heading">{{ t('landing.intro.heading', lang) }}</h2>
+    <p class="home-intro__body">{{ t('landing.intro.p1', lang)|safe }}</p>
+    <p class="home-intro__body">{{ t('landing.intro.p2', lang) }}</p>
+  </div>
+</section>
+
+{# 3 — About. Text column + image of Anceu with the script-name caption card.
+The /about page is gone; this section is its new home. #}
+<section class="home-about" id="about">
+  <div class="home-about__inner">
+    <div class="home-about__text" data-reveal>
+      <p class="section-label">
+        <span class="section-label__rule" aria-hidden="true"></span>
+        <span class="section-label__text"
+          >{{ t('landing.about.label', lang) }}</span
+        >
+      </p>
+      <h2 class="home-about__heading">
+        {{ t('landing.about.heading', lang) }}
+      </h2>
+      <p class="home-about__body">{{ t('landing.about.p1', lang) }}</p>
+      <p class="home-about__body">{{ t('landing.about.p2', lang) }}</p>
+    </div>
+
+    <figure class="home-about__figure" data-reveal>
+      <div class="home-about__image-frame">
+        <img
+          class="home-about__image"
+          src="/static/img/shared-roots.jpg"
+          alt="{{ t('landing.about.image_alt', lang) }}"
+          width="650"
+          height="650"
+          loading="lazy"
+        />
+      </div>
+    </figure>
+  </div>
+</section>
+
+{# 4 — Quote. Centred on dark green with large light-teal quotation marks. #}
+<section class="home-quote">
+  <div class="home-quote__inner">
+    <span
+      class="home-quote__mark home-quote__mark--open"
+      data-reveal
+      aria-hidden="true"
+      >&ldquo;</span
+    >
+    <blockquote class="home-quote__body" data-reveal>
+      {{ t('landing.quote.body', lang) }}
+    </blockquote>
+    <span
+      class="home-quote__mark home-quote__mark--close"
+      data-reveal
+      aria-hidden="true"
+      >&rdquo;</span
+    >
+  </div>
+  <p class="home-quote__attr" data-reveal>{{ t('landing.quote.attr', lang) }}</p>
+</section>
+
+{# 5 — Locations. Label + heading + outline "Explore" CTA at the header; three
+featured cards below. Cards collapse to an empty-state on a fresh fork (no
+featured stations). #}
+<section class="home-locations" id="locations">
+  <div class="home-locations__inner">
+    <div class="home-locations__header" data-reveal>
+      <p class="section-label">
+        <span class="section-label__rule" aria-hidden="true"></span>
+        <span class="section-label__text"
+          >{{ t('landing.locations.label', lang) }}</span
+        >
+      </p>
+      <h2 class="home-locations__heading">
+        <span class="home-locations__heading-line"
+          >{{ t('landing.locations.heading', lang) }}</span
+        >
+        <span class="home-locations__heading-line"
+          >{{ t('landing.locations.heading_place', lang) }}</span
+        >
+      </h2>
+    </div>
+
+    {% if view.featured %}
+    <ul class="home-locations__cards" role="list" data-reveal-stagger>
+      {% for card in view.featured %}
+      <li class="home-locations__card-item">
+        {% include "partials/home_location_card.html" %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="home-locations__empty">
+      {{ t('landing.locations.empty', lang) }}
+    </p>
+    {% endif %}
+
+    <div class="home-locations__cta-row">
+      <a class="btn-outline" href="{{ view.locations_href }}">
+        <span class="btn-outline__label"
+          >{{ t('landing.locations.cta', lang) }}</span
+        >
+        <svg
+          viewBox="0 0 9 7"
+          width="9"
+          height="7"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path fill="currentColor" d="M5.5 0l3.5 3.5L5.5 7V4H0V3h5.5z" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+{# 6 — Setup. A centred dark-green card sized by its content; image on the left
+(under a 50%-opacity card-coloured mask) and copy + a single "get in touch" CTA
+on the right. Hidden entirely when submissions are disabled — the whole section
+pitches hosting a location, which isn't possible then. #}
+{% if submissions_enabled %}
+<section class="home-setup" id="setup">
+  <div class="home-setup__card" data-reveal>
+    <div class="home-setup__image-col" aria-hidden="true">
+      <img
+        class="home-setup__image"
+        src="/static/img/community-background.jpg"
+        alt=""
+        width="600"
+        height="500"
+        loading="lazy"
+      />
+    </div>
+    <div class="home-setup__content">
+      <p class="section-label">
+        <span class="section-label__rule" aria-hidden="true"></span>
+        <span class="section-label__text"
+          >{{ t('landing.setup.label', lang) }}</span
+        >
+      </p>
+      <h2 class="home-setup__heading">
+        {{ t('landing.setup.heading', lang) }}
+      </h2>
+      <p class="home-setup__body">{{ t('landing.setup.p1', lang) }}</p>
+      <p class="home-setup__body">{{ t('landing.setup.p2', lang) }}</p>
+      <div class="home-setup__actions">
+        <a class="btn-outline btn-outline--light" href="{{ view.host_href }}">
+          <span class="btn-outline__label"
+            >{{ t('landing.setup.cta', lang) }}</span
+          >
+          <svg
+            viewBox="0 0 9 7"
+            width="9"
+            height="7"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path fill="currentColor" d="M5.5 0l3.5 3.5L5.5 7V4H0V3h5.5z" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

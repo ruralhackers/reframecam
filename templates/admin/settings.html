@@ -1,0 +1,138 @@
+{% extends "admin/layout.html" %}
+
+{% block admin_page_title %}Ajustes{% endblock %}
+
+{% block admin_content %}
+  {% if notice == "saved" %}
+    <div class="admin-toast" role="status" data-admin-toast>
+      <span class="admin-toast__msg">Ajustes guardados.</span>
+      <button type="button" class="admin-toast__close" aria-label="Cerrar">&times;</button>
+    </div>
+  {% endif %}
+
+  <form
+    class="admin-form"
+    method="post"
+    action="/admin/{{ admin_slug }}/settings/upload-notifications"
+  >
+    <section class="admin-form__section">
+      <h2 class="admin-section-label">Notificaciones por correo</h2>
+
+      <p class="admin__lede">
+        Recibe un correo (con la miniatura) cada vez que alguien sube una foto,
+        para revisarla rápidamente. Se envía a
+        {% if smtp_recipient %}
+          <code class="admin-readonly-list__env">{{ smtp_recipient }}</code>.
+        {% else %}
+          la dirección configurada en las variables de entorno
+          (<code class="admin-readonly-list__env">SMTP_RECIPIENT</code>).
+        {% endif %}
+      </p>
+
+      <div class="admin-switch-row">
+        <span class="admin-switch-row__text">
+          <span class="admin-form__label">
+            Enviar un correo cuando se suba una foto nueva
+          </span>
+          <span class="admin-form__hint">
+            {% if upload_notifications_enabled %}Activado{% else %}Desactivado{% endif %}
+          </span>
+        </span>
+        <label class="admin-switch">
+          <input
+            type="checkbox"
+            name="enabled"
+            value="on"
+            {% if upload_notifications_enabled %}checked{% endif %}
+          />
+          <span class="admin-switch__track"></span>
+        </label>
+      </div>
+
+      {% if not smtp_configured %}
+        <p class="admin-note">
+          SMTP no está configurado; activarlo no enviará correos hasta que se
+          configuren las variables de entorno
+          <code class="admin-readonly-list__env">SMTP_*</code>.
+        </p>
+      {% endif %}
+
+      <div class="admin-form__actions">
+        <button type="submit" class="admin__btn">Guardar</button>
+      </div>
+    </section>
+  </form>
+
+  <section class="admin-form__section admin-form__section--detached">
+    <h2 class="admin-section-label">Umbrales de validación</h2>
+
+    <p class="admin__lede">
+      Estos umbrales se configuran mediante variables de entorno; hace falta
+      reiniciar para aplicar los cambios. Valores actuales:
+    </p>
+
+    <dl class="admin-readonly-list">
+      <div class="admin-readonly-list__row">
+        <dt class="admin-readonly-list__label">
+          Resolución mínima (lado largo)
+        </dt>
+        <dd class="admin-readonly-list__value">
+          <span class="admin-readonly-list__num">
+            {{ thresholds.min_resolution_long_edge }} px
+          </span>
+          <code class="admin-readonly-list__env">MIN_RESOLUTION_LONG_EDGE</code>
+        </dd>
+      </div>
+      <div class="admin-readonly-list__row">
+        <dt class="admin-readonly-list__label">
+          Umbral de nitidez (varianza Laplaciana)
+        </dt>
+        <dd class="admin-readonly-list__value">
+          <span class="admin-readonly-list__num">
+            {{ thresholds.blur_laplacian_threshold }}
+          </span>
+          <code class="admin-readonly-list__env">BLUR_LAPLACIAN_THRESHOLD</code>
+        </dd>
+      </div>
+      <div class="admin-readonly-list__row">
+        <dt class="admin-readonly-list__label">Coincidencias mínimas</dt>
+        <dd class="admin-readonly-list__value">
+          <span class="admin-readonly-list__num">
+            {{ thresholds.feature_match_min_matches }}
+          </span>
+          <code class="admin-readonly-list__env">FEATURE_MATCH_MIN_MATCHES</code>
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="admin-form__section admin-form__section--detached">
+    <h2 class="admin-section-label">Operativa</h2>
+
+    <p class="admin__lede">
+      Estos ajustes se configuran mediante variables de entorno; hace falta
+      reiniciar para aplicar los cambios. Valores actuales:
+    </p>
+
+    <dl class="admin-readonly-list">
+      <div class="admin-readonly-list__row">
+        <dt class="admin-readonly-list__label">Formulario de propuestas</dt>
+        <dd class="admin-readonly-list__value">
+          <span class="admin-readonly-list__num">
+            {% if operational.submissions_enabled %}Activado{% else %}Desactivado{% endif %}
+          </span>
+          <code class="admin-readonly-list__env">SUBMISSIONS_ENABLED</code>
+        </dd>
+      </div>
+      <div class="admin-readonly-list__row">
+        <dt class="admin-readonly-list__label">Radio de cercanía</dt>
+        <dd class="admin-readonly-list__value">
+          <span class="admin-readonly-list__num">
+            {{ operational.nearby_radius_km }} km
+          </span>
+          <code class="admin-readonly-list__env">NEARBY_RADIUS_KM</code>
+        </dd>
+      </div>
+    </dl>
+  </section>
+{% endblock %}

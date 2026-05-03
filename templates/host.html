@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="host-page">
+  {% if submitted %}
+  <section class="host-hero host-hero--success">
+    <div class="host-hero__inner">
+      <h1 class="host-hero__heading">
+        {{ t('host.confirmation.heading', lang) }}
+      </h1>
+      <p class="host-hero__intro">{{ t('host.confirmation.body', lang) }}</p>
+      <a class="btn-outline host-hero__back" href="/{{ lang }}/">
+        <span class="btn-outline__label"
+          >{{ t('host.confirmation.back', lang) }}</span
+        >
+        <svg
+          viewBox="0 0 9 7"
+          width="9"
+          height="7"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path fill="currentColor" d="M5.5 0l3.5 3.5L5.5 7V4H0V3h5.5z" />
+        </svg>
+      </a>
+    </div>
+  </section>
+  {% else %}
+  <section class="host-hero">
+    <div class="host-hero__inner">
+      <h1 class="host-hero__heading">{{ t('host.heading', lang) }}</h1>
+      <p class="host-hero__intro">{{ t('host.intro.p1', lang) }}</p>
+      <p class="host-hero__intro">{{ t('host.intro.p2', lang) }}</p>
+    </div>
+  </section>
+
+  <section class="host-form">
+    <div class="host-form__card">
+      {% if error %}
+      <p class="host-form__error" role="alert">{{ t(error, lang) }}</p>
+      {% endif %}
+
+      <form
+        class="host-form__form"
+        method="post"
+        action="{{ form_action }}"
+        novalidate
+      >
+        <div class="host-form__row">
+          <div class="host-form__field">
+            <label class="host-form__label" for="host-email">
+              {{ t('host.field.email.label', lang) }}<span
+                class="host-form__required"
+                aria-label="{{ t('host.required_indicator', lang) }}"
+                >*</span
+              >
+            </label>
+            <input
+              class="host-form__input"
+              type="email"
+              id="host-email"
+              name="email"
+              value="{{ form_email }}"
+              inputmode="email"
+              autocomplete="email"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              aria-describedby="host-email-error"
+              required
+            />
+            <p
+              class="host-form__field-error"
+              id="host-email-error"
+              role="alert"
+              hidden
+            >
+              {{ t('host.error.invalid_email', lang) }}
+            </p>
+          </div>
+
+          <div class="host-form__field">
+            <label class="host-form__label" for="host-location">
+              {{ t('host.field.location.label', lang) }}<span
+                class="host-form__required"
+                aria-label="{{ t('host.required_indicator', lang) }}"
+                >*</span
+              >
+            </label>
+            <input
+              class="host-form__input"
+              type="text"
+              id="host-location"
+              name="location"
+              value="{{ form_location }}"
+              aria-describedby="host-location-hint"
+              required
+            />
+            <p class="host-form__hint" id="host-location-hint">
+              {{ t('host.field.location.hint', lang) }}
+            </p>
+          </div>
+        </div>
+
+        <fieldset class="host-form__field host-form__fieldset">
+          <legend class="host-form__label">
+            {{ t('host.field.interests.label', lang) }}
+          </legend>
+          <div class="host-tags" role="group">
+            {% for key in interests %}
+            <label class="host-tags__tag">
+              <input
+                class="host-tags__input"
+                type="checkbox"
+                name="interests"
+                value="{{ key }}"
+                {% if key in form_interests %}checked{% endif %}
+              />
+              <span class="host-tags__label"
+                >{{ t('host.interest.' ~ key, lang) }}</span
+              >
+            </label>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <div class="host-form__field">
+          <label class="host-form__label" for="host-notes">
+            {{ t('host.field.notes.label', lang) }}
+          </label>
+          <textarea
+            class="host-form__textarea"
+            id="host-notes"
+            name="notes"
+            rows="4"
+          >{{ form_notes }}</textarea>
+        </div>
+
+        {# Honeypot — hidden from people, tempting to bots. A POST with this
+           field filled is treated as spam: the confirmation is shown but no
+           email is sent. Not a translated UI string (never seen by a human). #}
+        <div class="host-form__honeypot" aria-hidden="true">
+          <label for="host-website">Website</label>
+          <input
+            type="text"
+            id="host-website"
+            name="website"
+            tabindex="-1"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="host-form__actions">
+          <button class="btn-outline" type="submit">
+            <span class="btn-outline__label">{{ t('host.submit', lang) }}</span>
+            <svg
+              viewBox="0 0 9 7"
+              width="9"
+              height="7"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path fill="currentColor" d="M5.5 0l3.5 3.5L5.5 7V4H0V3h5.5z" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script defer src="/static/js/host.js"></script>
+{% endblock %}

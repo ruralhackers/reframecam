@@ -1,0 +1,12 @@
+{# ES | EN switch — the inactive language is the link, current language is plain text. #}
+{# Path-equivalent target is computed by the route caller via the `toggle_href` context #}
+{# variable; if absent, fall back to the other language's landing page. #}
+{% set _other = other_lang(lang) %}
+{% set _href = toggle_href if toggle_href is defined else '/' ~ _other ~ '/' %}
+<nav class="language-toggle" aria-label="{{ t('language_toggle.aria', lang) }}">
+  <span class="language-toggle__active" aria-current="true">{{ t('language_toggle.active', lang) }}</span>
+  <span class="language-toggle__sep" aria-hidden="true">|</span>
+  <a class="language-toggle__inactive" href="{{ _href }}" hreflang="{{ _other }}">
+    {{ t('language_toggle.inactive', lang) }}
+  </a>
+</nav>

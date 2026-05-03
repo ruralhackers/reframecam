@@ -1,0 +1,104 @@
+/* Design tokens — "abundant brooks" homepage redesign (v2 → v3).
+ *
+ * Templates and components reference tokens, never raw values. This is the
+ * single source of truth for colour, type, spacing, motion — a fork rebrands
+ * by editing the colour / spacing values below. The only hand-sync is the
+ * inlined critical subset in templates/base.html <head>: change a critical
+ * value here and you MUST change the matching line there too (no build step
+ * derives one from the other), or the first paint flashes the old value.
+ * tests/test_tokens_sync.py guards that the two stay in agreement.
+ *
+ * Some legacy v1/v2 tokens (--colour-ink-muted, --text-md/lg/xl, --leading-*,
+ * --radius-md) are kept declared for the station / host / admin pages — a
+ * follow-up redesign pass will retire them.
+ */
+
+:root {
+  /* ── Colour — "abundant brooks" palette ──────────────────────────────── */
+  --colour-ink:           #414844;   /* body text, nav links                */
+  --colour-ink-strong:    #0B211A;   /* headings, primary buttons           */
+  --colour-paper:         #F9F6F7;   /* nav surface, quote text, off-white  */
+  --colour-surface:       #E5E8E4;   /* body background, light beige        */
+  --colour-surface-alt:   #EEEEEE;   /* locations section background        */
+  --colour-card:          #FFFFFF;   /* location-card surface               */
+  --colour-card-line:     #E2E3E1;   /* light gray card border              */
+  --colour-deep:          #163528;   /* quote / footer / setup-card bg      */
+  --colour-mid:           #245A4A;   /* section label, image badge          */
+  --colour-accent:        #C7EBD7;   /* light teal — on-dark accents        */
+  --colour-signal:        #B84A3A;   /* progress, inline-notice, admin remove */
+
+  /* ── Legacy tokens (still referenced by non-homepage pages) ──────────── */
+  --colour-ink-muted:     #5A5A5A;
+
+  /* ── RGB channels — let rgba() overlays compose from the palette rather
+        than hardcode the hex. A fork overriding the colour above MUST keep
+        the matching channel in sync. ──────────────────────────────────── */
+  --colour-ink-strong-rgb: 11, 33, 26;     /* #0B211A */
+  --colour-accent-rgb:     199, 235, 215;  /* #C7EBD7 */
+  --colour-paper-rgb:      249, 246, 247;  /* #F9F6F7 */
+
+  /* ── Scrims — dark-green overlays at a few semantic strengths, all built
+        from --colour-ink-strong. Replaces a sprawl of one-off rgba opacities. */
+  --scrim-soft:    rgba(var(--colour-ink-strong-rgb), 0.32);  /* hero photo wash        */
+  --scrim-photo:   rgba(var(--colour-ink-strong-rgb), 0.62);  /* photo-state overlays   */
+  --scrim-chip:    rgba(var(--colour-ink-strong-rgb), 0.70);  /* date chip over a photo */
+  --scrim-strong:  rgba(var(--colour-ink-strong-rgb), 0.78);  /* tooltips, backdrops    */
+  --shadow-marker: 0 2px 2px rgba(var(--colour-ink-strong-rgb), 0.35);  /* map marker  */
+
+  /* ── Type families ───────────────────────────────────────────────────── */
+  --font-display: "Anton", sans-serif;
+  --font-body:    "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --font-script:  "Permanent Marker", "Be Vietnam Pro", cursive;
+
+  /* ── Type scale ──────────────────────────────────────────────────────── */
+  --text-xs:         13px;
+  --text-sm:         15px;
+  --text-md:         17px;
+  --text-lg:         21px;
+  --text-xl:         24px;
+  --text-display-sm: 28px;
+  --text-display-md: 48px;
+  --text-display-lg: 120px;
+  --text-mark:       200px;
+
+  --leading-tight: 1.05;
+  --leading-snug:  1.2;
+  --leading-base:  1.6;
+
+  /* ── Spacing ─────────────────────────────────────────────────────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  80px;
+  --space-10: 104px;
+  --space-11: 160px;
+
+  /* ── Radii ───────────────────────────────────────────────────────────── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-pill: 32px;
+
+  /* ── Motion ──────────────────────────────────────────────────────────── */
+  --transition-fast: 120ms ease-out;
+  --transition-base: 240ms ease-out;
+
+  /* ── Effects ─────────────────────────────────────────────────────────── */
+  --shadow-card-soft:   0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-card-strong: 2px 2px 4px rgba(var(--colour-ink-strong-rgb), 0.20);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

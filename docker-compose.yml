@@ -1,0 +1,53 @@
+# ReFrame — app behind Caddy (automatic HTTPS).
+#
+# Put deployment values in a `.env` file beside this one:
+#
+#   DOMAIN=reframe.example.org      # omit for a local run — defaults to localhost
+#   ADMIN_SLUG=...                  # see the Admin section of README.md
+#   ADMIN_PASSWORD=...
+#   SMTP_HOST=... SMTP_RECIPIENT=... SMTP_PASSWORD=...   # only for the submission form
+#
+# Then: docker compose up --build
+
+services:
+  app:
+    build: .
+    environment:
+      DATA_ROOT: /data
+      ADMIN_SLUG: ${ADMIN_SLUG:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      SUBMISSIONS_ENABLED: ${SUBMISSIONS_ENABLED:-}
+      NEARBY_RADIUS_KM: ${NEARBY_RADIUS_KM:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-}
+      SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS:-}
+      SMTP_RECIPIENT: ${SMTP_RECIPIENT:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      BORDERLINE_LOG_PATH: ${BORDERLINE_LOG_PATH:-}
+    volumes:
+      - reframe-data:/data
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+    restart: unless-stopped
+
+volumes:
+  reframe-data:
+  caddy-data:
+  caddy-config:

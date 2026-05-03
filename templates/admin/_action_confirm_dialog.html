@@ -1,0 +1,21 @@
+{# Generic action-confirmation dialog. Opened by `static/js/admin.js` from any
+   `form[data-admin-confirm]` submit, populated from the form's
+   data-confirm-title / data-confirm-body / data-confirm-label attributes, then
+   the originating form is submitted natively on confirm. Distinct from the
+   photo-removal dialog (#admin-remove-confirm), which carries a reason field.
+   Spanish-only, like the rest of admin. #}
+<dialog
+  id="admin-action-confirm"
+  class="admin-confirm-dialog"
+  aria-labelledby="admin-action-confirm-title"
+>
+  <form method="dialog" class="admin-confirm-dialog__close-form">
+    <button type="submit" value="cancel" class="admin-confirm-dialog__close" aria-label="Cerrar">×</button>
+  </form>
+  <h2 id="admin-action-confirm-title" class="admin-confirm-dialog__title" data-action-title></h2>
+  <p class="admin-confirm-dialog__body" data-action-body></p>
+  <div class="admin-confirm-dialog__actions">
+    <button type="button" class="btn-outline" data-action-cancel>Cancelar</button>
+    <button type="button" class="admin-confirm-dialog__submit" data-action-submit>Confirmar</button>
+  </div>
+</dialog>

@@ -1,0 +1,144 @@
+{# Timelapse viewer (spec §5.5).
+   Renders the photo container + (always when mode != empty) a controls row,
+   based on `viewer.mode` — empty / single / full. The frames list and aria
+   labels are emitted as a JSON blob that `static/js/viewer.js` reads on
+   DOMContentLoaded; without JS the eager <img> alone still shows the most
+   recent frame (or the empty placeholder), so the page degrades gracefully.
+
+   Controls DOM is always rendered when mode != empty so the JS can flip
+   single → full on append without a page refresh; CSS hides controls when
+   mode == single.
+
+   Expects `viewer` from views.station_view(); always present. #}
+{% set mode = viewer.mode %}
+{% set has_controls = mode != "empty" %}
+{% set frames = viewer.frames %}
+{% set last = frames[-1] if frames else none %}
+<section
+  class="viewer viewer--{{ mode }}"
+  id="viewer"
+  data-mode="{{ mode }}"
+  aria-label="{{ viewer.aria_region }}"
+>
+  <div class="viewer__photo viewer__photo--{{ mode }}">
+    {# Most recent frame loads eagerly per §5.5.3 / §8.2; the JS swaps src in
+       place. The empty state renders no <img> — the photo container gets a
+       surface-alt fill with the brand wordmark via CSS. #}
+    {% if mode == "empty" %}
+      <div class="viewer__empty-frame" aria-hidden="true"></div>
+    {% else %}
+      <img
+        class="viewer__image"
+        data-viewer-image
+        src="{{ last.viewer_url }}"
+        alt=""
+        width="1200"
+        height="675"
+      />
+      <div class="viewer__date" aria-hidden="true">
+        <span data-viewer-date>{{ last.date_overlay }}</span>
+      </div>
+      {# §5.5.1 default state: large play glyph centred at 25% opacity. JS
+         hides this once the user interacts. CSS hides it entirely in single
+         mode (only one frame — nothing to play). #}
+      <button
+        type="button"
+        class="viewer__play-overlay"
+        data-viewer-play-overlay
+        aria-label="{{ viewer.aria_play }}"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <polygon points="6,4 20,12 6,20" />
+        </svg>
+      </button>
+    {% endif %}
+  </div>
+
+  {% if mode != "empty" %}
+    {# Screen-reader-only live region: announces the frame's longform date and
+       "Photo X of Y" on every step. aria-live="polite" so it doesn't interrupt. #}
+    <div class="visually-hidden" aria-live="polite" data-viewer-live>
+      {{ last.sr_label }}. {{ viewer.frame_of_total_template.format(n=last.index + 1, total=frames|length) }}
+    </div>
+  {% endif %}
+
+  {% if mode == "empty" %}
+    <p class="viewer__indicator viewer__indicator--solo">{{ viewer.empty_caption }}</p>
+  {% elif has_controls %}
+    <div class="viewer__controls">
+      <button
+        type="button"
+        class="viewer__btn viewer__btn--step"
+        data-viewer-prev
+        aria-label="{{ viewer.aria_prev }}"
+        title="{{ viewer.aria_prev }}"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <polygon points="16,4 6,12 16,20" />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="viewer__btn viewer__btn--play"
+        data-viewer-play
+        aria-label="{{ viewer.aria_play }}"
+        title="{{ viewer.aria_play }}"
+        data-label-play="{{ viewer.aria_play }}"
+        data-label-pause="{{ viewer.aria_pause }}"
+      >
+        <svg class="viewer__icon viewer__icon--play" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <polygon points="6,4 20,12 6,20" />
+        </svg>
+        <svg class="viewer__icon viewer__icon--pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <rect x="6" y="4" width="4" height="16" />
+          <rect x="14" y="4" width="4" height="16" />
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="viewer__btn viewer__btn--step"
+        data-viewer-next
+        aria-label="{{ viewer.aria_next }}"
+        title="{{ viewer.aria_next }}"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <polygon points="8,4 18,12 8,20" />
+        </svg>
+      </button>
+
+      <div class="viewer__scrubber" data-viewer-scrubber-wrap>
+        <div class="viewer__months" data-viewer-months aria-hidden="true"></div>
+        <div
+          class="viewer__scrubber-track"
+          data-viewer-scrubber
+          role="slider"
+          tabindex="0"
+          aria-label="{{ viewer.aria_scrubber }}"
+          aria-valuemin="0"
+          aria-valuemax="{{ frames|length - 1 }}"
+          aria-valuenow="{{ frames|length - 1 }}"
+        >
+          <div class="viewer__ticks" data-viewer-ticks aria-hidden="true"></div>
+          <div class="viewer__playhead" data-viewer-playhead aria-hidden="true"></div>
+        </div>
+      </div>
+      <label class="viewer__speed">
+        <span class="visually-hidden">{{ viewer.aria_speed }}</span>
+        <select data-viewer-speed aria-label="{{ viewer.aria_speed }}">
+          <option value="0.5">0.5×</option>
+          <option value="1" selected>1×</option>
+          <option value="2">2×</option>
+          <option value="4">4×</option>
+        </select>
+      </label>
+    </div>
+  {% endif %}
+
+  {% if viewer.payload %}
+    {# Frame data + month abbreviations consumed by static/js/viewer.js.
+       Inline JSON keeps the JS module pure (no fetch, no extra round-trip). #}
+    <script type="application/json" data-viewer-payload>{{ viewer.payload|tojson }}</script>
+  {% endif %}
+</section>

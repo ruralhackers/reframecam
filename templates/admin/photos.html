@@ -1,0 +1,97 @@
+{% extends "admin/layout.html" %}
+
+{% block admin_page_title %}Fotos{% endblock %}
+
+{% block admin_content %}
+  {% if notice == "removed" %}
+    <div class="admin-toast" role="status" data-admin-toast>
+      <span class="admin-toast__msg">Foto eliminada.</span>
+      <button type="button" class="admin-toast__close" aria-label="Cerrar">&times;</button>
+    </div>
+  {% elif notice == "removed_draft" %}
+    <div class="admin-toast" role="status" data-admin-toast>
+      <span class="admin-toast__msg">Foto eliminada. La estación pasó a borrador al quedarse sin fotos.</span>
+      <button type="button" class="admin-toast__close" aria-label="Cerrar">&times;</button>
+    </div>
+  {% endif %}
+  {% if view.photos %}
+    <ol class="admin-photo-list" role="list">
+      {% for item in view.photos %}
+        <li class="admin-photo-card">
+          <button
+            type="button"
+            class="admin-photo-card__preview-btn"
+            data-photo-preview
+            data-viewer-url="{{ item.viewer_url }}"
+            data-viewer-width="{{ item.viewer_width }}"
+            data-viewer-height="{{ item.viewer_height }}"
+            data-station-name="{{ item.station_name }}"
+            data-captured-at="{{ item.captured_at }}"
+            aria-label="Ver foto a tamaño completo"
+          >
+            <img
+              class="admin-photo-card__thumb"
+              src="{{ item.thumb_url }}"
+              alt="{{ view.thumb_alt }}"
+              width="96"
+              height="96"
+              loading="lazy"
+            />
+          </button>
+          <div class="admin-photo-card__meta">
+            <p class="admin-photo-card__station">{{ item.station_name }}</p>
+            <p class="admin-photo-card__date">{{ item.captured_at }}</p>
+          </div>
+          <form
+            class="admin-photo-card__remove"
+            method="post"
+            action="{{ item.remove_action }}"
+            data-remove-form
+            data-confirm-message="{{ view.confirm_message }}"
+          >
+            <button type="submit" class="admin-photo-card__remove-btn" aria-label="{{ view.remove_label }}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 6h18"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                <line x1="10" x2="10" y1="11" y2="17"/>
+                <line x1="14" x2="14" y1="11" y2="17"/>
+              </svg>
+            </button>
+          </form>
+        </li>
+      {% endfor %}
+    </ol>
+
+    {% if view.pagination.prev_href or view.pagination.next_href %}
+      <nav class="admin__pagination" aria-label="Paginación">
+        {% if view.pagination.prev_href %}
+          <a class="admin__page-link" href="{{ view.pagination.prev_href }}">{{ view.pagination.prev_label }}</a>
+        {% else %}
+          <span class="admin__page-link admin__page-link--disabled" aria-disabled="true">{{ view.pagination.prev_label }}</span>
+        {% endif %}
+        {% if view.pagination.next_href %}
+          <a class="admin__page-link" href="{{ view.pagination.next_href }}">{{ view.pagination.next_label }}</a>
+        {% else %}
+          <span class="admin__page-link admin__page-link--disabled" aria-disabled="true">{{ view.pagination.next_label }}</span>
+        {% endif %}
+      </nav>
+    {% endif %}
+
+    <dialog id="admin-photo-preview" class="admin-photo-dialog" aria-label="Vista previa de foto">
+      <header class="admin-photo-dialog__header">
+        <div class="admin-photo-dialog__meta">
+          <span class="admin-photo-dialog__station" data-dialog-station></span>
+          <span class="admin-photo-dialog__date" data-dialog-date></span>
+        </div>
+        <form method="dialog" class="admin-photo-dialog__close-form">
+          <button type="submit" class="admin-photo-dialog__close" aria-label="Cerrar">×</button>
+        </form>
+      </header>
+      <img class="admin-photo-dialog__image" data-dialog-image alt="" />
+    </dialog>
+
+    {% include "admin/_remove_confirm_dialog.html" %}
+  {% else %}
+    <p class="admin__empty">{{ view.empty }}</p>
+  {% endif %}
+{% endblock %}

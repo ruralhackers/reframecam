@@ -1,0 +1,26 @@
+.git
+.gitignore
+.venv
+venv
+**/__pycache__
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+*.egg-info
+
+# Runtime data — the image ships only the committed config + placeholders;
+# photos, references, and the DB belong to the persistent volume.
+data/photos
+data/reference
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+
+# Not needed in the runtime image.
+docs
+tests
+DEPLOYMENT.md
+CLAUDE.md
+.DS_Store

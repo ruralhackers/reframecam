@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block scripts %}
+  {# Leaflet is self-hosted under /static/vendor (see static/vendor/leaflet).
+     OpenStreetMap tiles are the one accepted third-party runtime dependency
+     on this surface. Both scripts are deferred — leaflet.js executes before
+     locations-map.js, so the L global is ready when the module runs. #}
+  <link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css" />
+  <script defer src="/static/vendor/leaflet/leaflet.js"></script>
+  <script defer src="/static/js/locations-map.js"></script>
+{% endblock %}
+
+{% block main %}
+  <section class="locations-page">
+    <div class="locations-page__inner">
+      <h1 class="locations-page__heading">{{ t('locations.heading', lang) }}</h1>
+
+      {% if view.has_markers %}
+        <figure class="locations-page__map-frame">
+          <div
+            id="locations-map"
+            class="locations-map"
+            aria-label="{{ t('locations.map_aria', lang) }}"
+            data-map-hint="{{ t('locations.map_hint', lang) }}"
+          ></div>
+          <script type="application/json" data-locations-payload>{{ view.markers | tojson }}</script>
+        </figure>
+      {% endif %}
+
+      {% if view.countries %}
+        {% for country in view.countries %}
+          <section class="locations-page__country">
+            <h2 class="locations-page__country-heading">{{ country.country }}</h2>
+            {% for loc in country.locations %}
+              <div class="locations-page__location">
+                <h3 class="section-label locations-page__location-heading">
+                  <span class="section-label__rule" aria-hidden="true"></span>
+                  <span class="section-label__text">{{ loc.name }}</span>
+                </h3>
+                <ul class="locations-page__cards" role="list">
+                  {% for card in loc.cards %}
+                    <li class="locations-page__card-item">
+                      {% include "partials/home_location_card.html" %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endfor %}
+          </section>
+        {% endfor %}
+      {% else %}
+        <p class="locations-page__empty">{{ t('locations.empty', lang) }}</p>
+      {% endif %}
+
+    </div>
+  </section>
+
+  {% if submissions_enabled %}
+    <section class="locations-host">
+      <div class="locations-host__inner">
+        <h2 class="locations-host__heading">{{ t('locations.host_cta.heading', lang) }}</h2>
+        <p class="locations-host__body">
+          {{ t('locations.host_cta.body', lang) }}<br>
+          {{ t('locations.host_cta.body_emphasis', lang) }}
+        </p>
+        <div class="locations-host__actions">
+          <a class="btn-outline" href="{{ view.host_href }}">
+            <span class="btn-outline__label">{{ t('locations.host_cta.action', lang) }}</span>
+            <svg viewBox="0 0 9 7" width="9" height="7" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M5.5 0l3.5 3.5L5.5 7V4H0V3h5.5z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends "admin/layout.html" %}
+
+{% block admin_page_title %}{% if is_edit %}Editar lugar{% else %}Nuevo lugar{% endif %}{% endblock %}
+
+{% block admin_page_back %}
+  {% if is_edit %}
+    <a class="admin__btn admin__btn--ghost admin__btn--icon"
+       href="/admin/{{ admin_slug }}/locations"
+       aria-label="Volver a lugares"
+       data-admin-back>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m12 19-7-7 7-7"/>
+        <path d="M19 12H5"/>
+      </svg>
+    </a>
+  {% endif %}
+{% endblock %}
+
+{% block admin_page_actions %}
+  {% if is_edit %}
+    <button type="submit" form="location-form" class="admin__btn">Guardar</button>
+  {% endif %}
+{% endblock %}
+
+{% block admin_content %}
+  {% if notice == "created" %}
+    <div class="admin-toast" role="status" data-admin-toast>
+      <span class="admin-toast__msg">Lugar creado.</span>
+      <button type="button" class="admin-toast__close" aria-label="Cerrar">&times;</button>
+    </div>
+  {% endif %}
+  {% if error == "invalid" %}
+    <p class="admin__error">Revisa el slug (minúsculas y guiones) y el nombre.</p>
+  {% elif error == "duplicate" %}
+    <p class="admin__error">Ya existe un lugar con ese slug.</p>
+  {% elif error == "has_stations" %}
+    <p class="admin__error">No se puede eliminar: este lugar todavía tiene estaciones.</p>
+  {% endif %}
+
+  <form
+    id="location-form"
+    class="admin-form"
+    method="post"
+    action="{% if is_edit %}/admin/{{ admin_slug }}/locations/{{ location.slug }}{% else %}/admin/{{ admin_slug }}/locations/new{% endif %}"
+    {% if is_edit %}data-admin-dirty-warn{% endif %}
+  >
+    <section class="admin-form__section">
+      <h2 class="admin-section-label">Detalles</h2>
+
+      {% if not is_edit %}
+        <div data-admin-autoslug>
+          <label class="admin-form__field">
+            <span class="admin-form__label">Nombre del lugar<span class="admin-form__required" aria-hidden="true">*</span></span>
+            <input type="text" name="name" required maxlength="200" data-autoslug-source />
+          </label>
+
+          <label class="admin-form__field" data-autoslug-target-field>
+            <span class="admin-form__label">Slug<span class="admin-form__required" aria-hidden="true">*</span></span>
+            <input type="text" name="location_slug" required pattern="[a-z0-9\-]+"
+                   placeholder="lugar-nuevo" data-autoslug-target />
+            <span class="admin-form__hint">
+              Minúsculas y guiones. No se podrá cambiar después.
+            </span>
+          </label>
+        </div>
+      {% else %}
+        <p class="admin-form__static">
+          <strong>Slug:</strong> {{ location.slug }}
+        </p>
+
+        <label class="admin-form__field">
+          <span class="admin-form__label">Nombre del lugar<span class="admin-form__required" aria-hidden="true">*</span></span>
+          <input type="text" name="name" required maxlength="200"
+                 value="{{ location.name }}" />
+        </label>
+      {% endif %}
+
+      <label class="admin-form__field">
+        <span class="admin-form__label">País</span>
+        <select name="country">
+          {% for code, label in country_choices %}
+            <option value="{{ code }}"{% if code == selected_country %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </section>
+
+    {% if not is_edit %}
+      <div class="admin-form__actions">
+        <button type="submit" class="admin__btn">Crear</button>
+        <a class="admin__btn admin__btn--ghost" href="/admin/{{ admin_slug }}/locations">Cancelar</a>
+      </div>
+    {% endif %}
+  </form>
+
+  {% if is_edit %}
+    <section class="admin-form__section admin-form__section--detached">
+      <div class="admin-form__section-header">
+        <h2 class="admin-section-label">Estaciones en este lugar</h2>
+        <a class="admin__btn admin__btn--lead-icon" href="{{ add_station_href }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14"/>
+            <path d="M12 5v14"/>
+          </svg>
+          Nueva estación
+        </a>
+      </div>
+
+      {% if stations %}
+        <ul class="admin__list" role="list">
+          {% for st in stations %}
+            <li class="admin__row admin__row--simple">
+              <a class="admin__row-link" href="{{ st.edit_href }}">
+                <span class="admin__meta">
+                  <span class="admin__station">
+                    {{ st.name }}
+                    <span class="admin__status admin__status--{{ st.status }}">{{ st.status_label }}</span>
+                  </span>
+                </span>
+              </a>
+              <a class="admin__btn admin__btn--ghost admin__btn--icon" href="{{ st.edit_href }}" aria-label="Editar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                  <path d="m15 5 4 4"/>
+                </svg>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="admin__empty">Aún no hay estaciones aquí.</p>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

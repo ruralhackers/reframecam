@@ -1,0 +1,9 @@
+<footer class="site-footer">
+  <p class="site-footer__attribution">{{ site.attribution(lang)|safe }}</p>
+  {% if (show_language_toggle is not defined or show_language_toggle)
+        and enabled_langs|length > 1 %}
+    <div class="site-footer__lang">
+      {% include "partials/language_toggle.html" %}
+    </div>
+  {% endif %}
+</footer>

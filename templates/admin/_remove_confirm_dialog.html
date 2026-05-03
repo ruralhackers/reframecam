@@ -1,0 +1,29 @@
+{# Shared soft-delete confirmation dialog (§7.5). Included on the Photos tab and
+   on the station edit form's photo rail. Spanish-only, like the rest of admin.
+   `static/js/admin.js` opens it from any `form[data-remove-form]` submit and
+   injects the reason field as a hidden input before submitting natively. #}
+<dialog
+  id="admin-remove-confirm"
+  class="admin-confirm-dialog"
+  aria-labelledby="admin-remove-confirm-title"
+>
+  <form method="dialog" class="admin-confirm-dialog__close-form">
+    <button type="submit" value="cancel" class="admin-confirm-dialog__close" aria-label="Cerrar">×</button>
+  </form>
+  <h2 id="admin-remove-confirm-title" class="admin-confirm-dialog__title">¿Quitar esta foto del timelapse?</h2>
+  <div class="admin-confirm-dialog__photo">
+    <img class="admin-confirm-dialog__thumb" data-confirm-thumb src="" alt="" width="64" height="64" />
+    <div class="admin-confirm-dialog__meta">
+      <span class="admin-confirm-dialog__station" data-confirm-station></span>
+      <span class="admin-confirm-dialog__date" data-confirm-date></span>
+    </div>
+  </div>
+  <label class="admin-confirm-dialog__reason">
+    <span class="admin-confirm-dialog__reason-label">Motivo (opcional)</span>
+    <input type="text" data-confirm-reason class="admin-confirm-dialog__reason-input" maxlength="500" />
+  </label>
+  <div class="admin-confirm-dialog__actions">
+    <button type="button" class="btn-outline" data-confirm-cancel>Cancelar</button>
+    <button type="button" class="admin-confirm-dialog__submit" data-confirm-submit>Sí, quitar</button>
+  </div>
+</dialog>

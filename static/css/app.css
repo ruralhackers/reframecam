@@ -1,0 +1,4322 @@
+/* Application stylesheet.
+ *
+ * Reference design tokens via var(--token); never raw colours/sizes.
+ * Sections in order:
+ *   1. Self-hosted fonts          — Anton, Be Vietnam Pro, Permanent Marker,
+ *      JetBrains Mono
+ *   2. Reset / base               — body bg = surface (light beige)
+ *   3. Skip link / focus ring
+ *   4. Fixed site header          — bar + wavy bottom mask
+ *   5. Language toggle
+ *   6. Site footer                — deep-green, light-teal text
+ *   7. Main container             — capped column; full-bleed on the homepage
+ *      via :has() override
+ *   8. Shared primitives          — .section-label, .btn-outline,
+ *      .btn-outline--light
+ *   9. Homepage sections          — .home-hero / about / quote / locations /
+ *      setup, plus .home-location-card
+ *  10. Legacy v1/v2 page styles   — station, viewer, upload, error, admin,
+ *      locations, host. Untouched by this redesign; flagged for a
+ *      follow-up pass.
+ */
+
+/* ── 1. Self-hosted fonts ──────────────────────────────────────────────── */
+
+@font-face {
+  font-family: "Anton";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/anton-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Be Vietnam Pro";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/be-vietnam-pro-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Be Vietnam Pro";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/static/fonts/be-vietnam-pro-500.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Be Vietnam Pro";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/static/fonts/be-vietnam-pro-700.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Permanent Marker";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/permanent-marker-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/jetbrains-mono-400.woff2") format("woff2");
+}
+
+/* ── 2. Reset / base ───────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Suppress the native blue / grey flash on tap (iOS Safari, Android Chrome) —
+   our :hover / :focus-visible / :active styling carries the press feedback. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--colour-surface);
+  color: var(--colour-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: var(--leading-base);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+a {
+  color: inherit;
+}
+
+/* ── 3. Skip link / focus ring ─────────────────────────────────────────── */
+
+.skip-link {
+  position: absolute;
+  left: var(--space-3);
+  top: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: var(--colour-paper);
+  color: var(--colour-ink-strong);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--transition-fast);
+  z-index: 100;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--colour-ink-strong);
+  outline-offset: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--colour-ink-strong);
+  outline-offset: 2px;
+}
+
+/* ── 4. Fixed site header ──────────────────────────────────────────────── */
+
+/* `color: var(--colour-paper)` flows into the wavy mask's `fill="currentColor"`,
+   so the mask matches the bar's off-white background. The whole chrome reads
+   as one element: an off-white bar with a wavy bottom edge. */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  color: var(--colour-paper);
+  pointer-events: none; /* let scroll events through the chrome's wavy area */
+  transform: translateY(0);
+  transition: transform 240ms ease-out;
+}
+
+.site-header--hidden {
+  transform: translateY(-100%);
+}
+
+.site-header__bar {
+  pointer-events: auto;
+  background: var(--colour-paper);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  min-height: 64px;
+}
+
+.site-header__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-xl);
+  letter-spacing: 0.04em;
+  color: var(--colour-ink-strong);
+  text-decoration: none;
+  line-height: 1;
+}
+
+.site-header__logo .logo-mark {
+  width: 32px;
+  height: 32px;
+  color: var(--colour-deep);
+  display: block;
+}
+
+.site-header__mask {
+  display: block;
+  width: 100%;
+  height: 48px;
+  pointer-events: none;
+}
+
+.site-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.site-nav__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-1);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  color: var(--colour-ink-strong);
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+.site-nav__link:hover,
+.site-nav__link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@media (min-width: 640px) {
+  .site-header__bar {
+    padding: var(--space-3) var(--space-6);
+    min-height: 72px;
+  }
+
+  .site-header__mask {
+    height: 64px;
+  }
+
+  .site-nav {
+    gap: var(--space-6);
+  }
+}
+
+/* ── 5. Language toggle (now sits on off-white nav, ink-strong text) ───── */
+
+.language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--colour-ink-strong);
+  pointer-events: auto;
+}
+
+.language-toggle__active {
+  color: var(--colour-ink-strong);
+}
+
+.language-toggle__sep {
+  opacity: 0.4;
+}
+
+.language-toggle__inactive {
+  color: var(--colour-ink-strong);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.7;
+  padding: var(--space-2);
+  margin: calc(var(--space-2) * -1);
+}
+
+.language-toggle__inactive:hover,
+.language-toggle__inactive:focus-visible {
+  opacity: 1;
+}
+
+/* ── 6. Site footer ────────────────────────────────────────────────────── */
+
+.site-footer {
+  position: relative;
+  background: var(--colour-deep);
+  color: var(--colour-accent);
+  padding: var(--space-7) var(--space-5);
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+}
+
+.site-footer__attribution {
+  margin: 0;
+  color: var(--colour-accent);
+}
+
+.site-footer__lang {
+  position: absolute;
+  right: var(--space-5);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.site-footer__lang .language-toggle,
+.site-footer__lang .language-toggle__active,
+.site-footer__lang .language-toggle__inactive {
+  color: var(--colour-accent);
+}
+
+@media (min-width: 640px) {
+  .site-footer {
+    padding: var(--space-7) var(--space-8);
+  }
+
+  .site-footer__lang {
+    right: var(--space-8);
+  }
+}
+
+@media (min-width: 960px) {
+  .site-footer {
+    text-align: center;
+  }
+}
+
+/* ── 7. Main container ─────────────────────────────────────────────────── */
+
+main {
+  --content-max: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: calc(64px + 48px + var(--space-6)) var(--space-4) var(--space-6);
+}
+
+main > * {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+/* The homepage hero is full-bleed and extends behind the fixed chrome — drop
+   main's column padding / max-width when the homepage is in play. `:has()`
+   is supported in every browser we target. The Locations and Station pages
+   use the same full-bleed treatment so each section's background band
+   reaches edge-to-edge. */
+main:has(> .home-hero),
+main:has(> .locations-page),
+main:has(> .station-hero),
+main:has(> .host-page),
+main:has(> .error) {
+  padding: 0;
+  gap: 0;
+}
+
+main:has(> .home-hero) > *,
+main:has(> .locations-page) > *,
+main:has(> .station-hero) > *,
+main:has(> .host-page) > *,
+main:has(> .error) > * {
+  max-width: none;
+  margin: 0;
+}
+
+/* When the nav bar runs flat (no wavy mask), drop the mask-height share of
+   main's top padding so content doesn't sit needlessly low. */
+body:has(.site-header--flat) main {
+  padding-top: calc(64px + var(--space-6));
+}
+
+/* Locations and Station pages are fully full-bleed: zero padding on main so
+   the section bands run flush under the nav bar with no body-coloured strip
+   showing between them. Must come AFTER the flat-header rule (same
+   specificity, last wins) — each section's own top padding clears the bar. */
+body:has(.locations-page) main,
+body:has(.station-hero) main,
+body:has(.host-page) main,
+body:has(.error) main {
+  padding-top: 0;
+}
+
+@media (min-width: 640px) {
+  main {
+    padding: calc(72px + 64px + var(--space-7)) var(--space-6) var(--space-7);
+    gap: var(--space-7);
+  }
+
+  body:has(.site-header--flat) main {
+    padding-top: calc(72px + var(--space-7));
+  }
+
+  body:has(.locations-page) main,
+  body:has(.station-hero) main,
+  body:has(.host-page) main,
+  body:has(.error) main {
+    padding-top: 0;
+  }
+}
+
+/* ── 8. Shared primitives ──────────────────────────────────────────────── */
+
+/* Section-label primitive — a short uppercase label preceded by a 48px rule.
+   Used at the top of each homepage section ("SHARED ROOTS", "THE NETWORK"). */
+.section-label {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  color: var(--colour-ink);
+}
+
+.section-label__rule {
+  display: inline-block;
+  width: 48px;
+  height: 1px;
+  background: currentColor;
+}
+
+.section-label__rule--light {
+  background: var(--colour-accent);
+}
+
+.section-label__text {
+  display: inline-block;
+}
+
+/* Outline button — used for "EXPLORE ALL LOCATIONS". Transparent fill,
+   colour-deep border + text. On hover/focus the background fills with the
+   border colour and the text turns white. */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: var(--space-3) var(--space-5);
+  background: transparent;
+  color: var(--colour-deep);
+  border: 1px solid var(--colour-deep);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+/* `:hover` is gated to true-hover devices (mouse). On touchscreens both `:hover`
+   and `:active` fire on tap, and the hover side runs its transition from
+   `transparent` (rgba alpha 0) to solid — the in-progress state is literally
+   half opacity, which is what you see on press. Touch press fills via the
+   `:active` rule below, with `transition: none` so it's instant. */
+@media (hover: hover) {
+  .btn-outline:hover {
+    background: var(--colour-deep);
+    color: var(--colour-paper);
+  }
+}
+
+.btn-outline:focus-visible,
+.btn-outline:active {
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+  transition: none;
+}
+
+.btn-outline__label {
+  display: inline-block;
+}
+
+/* Light variant — used for "HOST A LOCATION" on the dark-green setup card.
+   Light-teal border + text; on hover, background fills with the border
+   colour and the text turns the card's dark green. */
+.btn-outline--light {
+  color: var(--colour-accent);
+  border-color: var(--colour-accent);
+}
+
+@media (hover: hover) {
+  .btn-outline--light:hover {
+    background: var(--colour-accent);
+    color: var(--colour-deep);
+  }
+}
+
+.btn-outline--light:focus-visible,
+.btn-outline--light:active {
+  background: var(--colour-accent);
+  color: var(--colour-deep);
+}
+
+/* ── 8.5 Reveal system ─────────────────────────────────────────────────── */
+
+/* On-scroll reveal: elements marked [data-reveal] start hidden and animate
+   to their resting state when reveal.js flips [data-revealed="true"] as they
+   enter the viewport. Stagger containers ([data-reveal-stagger] for scroll,
+   [data-reveal-on-load] for the hero cascade) flip every child at once;
+   each child's --reveal-index drives a transition-delay so they appear in
+   sequence.
+
+   Uses the modern `translate:` / `rotate:` / `scale:` properties (Chrome
+   104+, Safari 14.1+, Firefox 72+) so reveal motion composes cleanly with
+   existing `transform:` rules elsewhere (the scroll-cue's bounce keyframe,
+   etc.) — `transform` and `translate` are separate animatable properties. */
+
+[data-reveal],
+[data-reveal-stagger] > *,
+[data-reveal-on-load] > * {
+  opacity: 0;
+  translate: 0 16px;
+  transition:
+    opacity 600ms ease-out calc(var(--reveal-index, 0) * 120ms),
+    translate 600ms ease-out calc(var(--reveal-index, 0) * 120ms);
+}
+
+[data-reveal][data-revealed="true"],
+[data-reveal-stagger] > [data-revealed="true"],
+[data-reveal-on-load] > [data-revealed="true"] {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* Hero on-load cascade — shorter distance, snappier feel. */
+[data-reveal-on-load] > * {
+  translate: 0 8px;
+  transition:
+    opacity 500ms ease-out calc(var(--reveal-index, 0) * 120ms),
+    translate 500ms ease-out calc(var(--reveal-index, 0) * 120ms);
+}
+
+/* Section-label rules grow from 0 → 48px as their parent reveal element
+   flips. The +200ms delay lets the label text rise first, then the rule
+   sweeps out beside it. */
+[data-reveal] .section-label__rule,
+[data-reveal-stagger] > * .section-label__rule,
+[data-reveal-on-load] > * .section-label__rule {
+  width: 0;
+  transition: width 600ms ease-out calc(var(--reveal-index, 0) * 120ms + 200ms);
+}
+
+[data-revealed="true"] .section-label__rule {
+  width: 48px;
+}
+
+/* Figure variant — Shared Roots photo rotates 0 → 1deg as it rises. */
+.home-about__figure[data-reveal] {
+  rotate: 0deg;
+  transition:
+    opacity 700ms ease-out,
+    translate 700ms ease-out,
+    rotate 700ms ease-out;
+}
+
+.home-about__figure[data-revealed="true"] {
+  rotate: 1deg;
+}
+
+/* Quote-mark variant — scale 0.7 → 1 + fade in. Slower for drama. The marks
+   are absolutely positioned and don't need translate. */
+.home-quote__mark[data-reveal] {
+  opacity: 0;
+  scale: 0.7;
+  translate: 0 0;
+  transition:
+    opacity 800ms ease-out,
+    scale 800ms ease-out;
+}
+
+.home-quote__mark[data-revealed="true"] {
+  opacity: 0.7;
+  scale: 1;
+}
+
+/* Reduced-motion: skip all reveals, render every element at its resting
+   state immediately. reveal.js also exits early so no JS-side flipping
+   occurs; these !important rules force the visible state regardless of
+   whether [data-revealed] ever gets set. */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal-stagger] > *,
+  [data-reveal-on-load] > * {
+    opacity: 1 !important;
+    translate: 0 0 !important;
+    transition: none !important;
+  }
+
+  [data-reveal] .section-label__rule,
+  [data-reveal-stagger] > * .section-label__rule,
+  [data-reveal-on-load] > * .section-label__rule {
+    width: 48px !important;
+    transition: none !important;
+  }
+
+  .home-about__figure[data-reveal] {
+    rotate: 1deg !important;
+  }
+
+  .home-quote__mark[data-reveal] {
+    opacity: 0.7 !important;
+    scale: 1 !important;
+  }
+
+  .home-hero__poster {
+    transition: none !important;
+  }
+}
+
+/* ── 9. Homepage sections ──────────────────────────────────────────────── */
+
+/* — 9.1 Hero — full-screen video background with a parallax effect driven
+   by /static/js/home.js (gated on prefers-reduced-motion). The bottom wavy
+   mask hands off into the off-white About section. */
+.home-hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 560px;
+  background-color: var(--colour-deep);
+  color: var(--colour-paper);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Poster image, faded in by home.js only once fully loaded so slow
+   connections don't show it painting in top-to-bottom. Sits behind the
+   video (z-index 0, before it in source order); the video is transparent
+   until it has a frame, then paints over this. */
+.home-hero__poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 600ms ease-out;
+}
+
+.home-hero__poster[data-loaded="true"] {
+  opacity: 1;
+}
+
+.home-hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 110%;
+  object-fit: cover;
+  z-index: 0;
+  transform-origin: top center;
+  will-change: transform;
+}
+
+/* Dark overlay so the hero text reads against any video frame. */
+.home-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim-soft);
+  z-index: 1;
+}
+
+.home-hero__content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-7) var(--space-5);
+}
+
+.home-hero__logo {
+  display: block;
+}
+
+.home-hero__logo .logo-mark {
+  width: 128px;
+  height: 128px;
+  color: var(--colour-paper);
+  display: block;
+}
+
+.home-hero__badge {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-1) var(--space-4);
+  color: var(--colour-paper);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  border-radius: var(--radius-sm);
+}
+
+.home-hero__heading {
+  margin: 0 0 var(--space-5);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(64px, 14vw, var(--text-display-lg));
+  line-height: var(--leading-tight);
+  letter-spacing: 0.02em;
+  color: var(--colour-paper);
+}
+
+.home-hero__tagline {
+  margin: 0 0 var(--space-7);
+  max-width: 350px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(var(--text-md), 4.5vw, var(--text-xl));
+  line-height: var(--leading-snug);
+  color: var(--colour-paper);
+}
+
+@media (min-width: 640px) {
+  .home-hero__tagline {
+    max-width: 400px;
+  }
+}
+
+.home-hero__scroll-cue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  color: var(--colour-paper);
+  text-decoration: none;
+  animation: home-hero-bounce 2.4s ease-in-out infinite;
+}
+
+.home-hero__scroll-cue:hover,
+.home-hero__scroll-cue:focus-visible {
+  color: var(--colour-accent);
+}
+
+@keyframes home-hero-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(8px); }
+}
+
+/* Bottom mask — off-white wave at the bottom of the hero, blending into
+   the About section's off-white background. */
+.home-hero__mask {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  z-index: 3;
+  color: var(--colour-paper);
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .home-hero__mask {
+    height: 120px;
+  }
+}
+
+/* — 9.1b Intro section. Centred "What is ReFrame?" block between hero and
+     About. Lightest off-white; About below switches to surface-alt for a
+     subtle step. */
+.home-intro {
+  background: var(--colour-paper);
+  color: var(--colour-ink);
+  padding: var(--space-9) var(--space-5);
+  text-align: center;
+}
+
+.home-intro__inner {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-intro__inner > *:not(:first-child) {
+  margin-top: var(--space-5);
+}
+
+.home-intro__figure {
+  margin: 0;
+  width: 100%;
+  max-width: 640px;
+  padding: 12px;
+  background: var(--colour-card);
+  border: 1px solid var(--colour-card-line);
+  border-radius: 4px;
+}
+
+.home-intro__image-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 740 / 416;
+  overflow: hidden;
+}
+
+.home-intro__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-intro__heading {
+  margin: 0 0 16px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, var(--text-display-md));
+  line-height: var(--leading-tight);
+  color: var(--colour-ink-strong);
+}
+
+.home-intro__body {
+  margin: 0;
+  max-width: 600px;
+  font-family: var(--font-body);
+  font-size: 21px;
+  line-height: var(--leading-base);
+  color: var(--colour-ink);
+}
+
+@media (min-width: 960px) {
+  .home-intro {
+    padding: var(--space-11) var(--space-8);
+  }
+}
+
+/* — 9.2 About section. */
+.home-about {
+  background: var(--colour-surface-alt);
+  color: var(--colour-ink-strong);
+  padding: var(--space-9) var(--space-5);
+}
+
+.home-about__inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-8);
+}
+
+.home-about__text {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  margin-inline: auto;
+}
+
+.home-about__text > *:not(:first-child) {
+  margin-top: var(--space-5);
+}
+
+.home-about__text::before,
+.home-about__text::after {
+  content: "";
+  display: block;
+}
+
+.home-about__text::before { flex: 1 1 0; }
+.home-about__text::after  { flex: 1.618 1 0; }
+
+.home-about__heading {
+  margin: 0 0 16px;
+  max-width: 500px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, var(--text-display-md));
+  line-height: var(--leading-snug);
+  color: var(--colour-ink-strong);
+}
+
+.home-about__body {
+  margin: 0;
+  max-width: 450px;
+  font-size: 21px;
+  line-height: var(--leading-base);
+  color: var(--colour-ink);
+}
+
+.home-about__figure {
+  margin: 0;
+  position: relative;
+  width: 100%;
+  max-width: 676px;
+  align-self: center;
+  padding: 12px;
+  background: var(--colour-card);
+  border: 1px solid var(--colour-card-line);
+  border-radius: 4px;
+  rotate: 1deg;
+}
+
+.home-about__image-frame {
+  position: relative;
+  width: 100%;
+  max-width: 650px;
+  aspect-ratio: 1 / 1;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.home-about__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (min-width: 960px) {
+  .home-about {
+    padding: var(--space-11) var(--space-8);
+  }
+
+  .home-about__inner {
+    flex-direction: row;
+    align-items: stretch;
+    gap: var(--space-8);
+  }
+
+  .home-about__text {
+    flex: 1 1 50%;
+    max-width: 512px;
+    margin-inline: 0;
+  }
+
+  .home-about__figure {
+    flex: 1 1 50%;
+    align-self: start;
+  }
+}
+
+/* — 9.3 Quote. */
+.home-quote {
+  position: relative;
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+  padding: var(--space-10) var(--space-6);
+  text-align: center;
+}
+
+.home-quote__inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.home-quote__body {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 5vw, var(--text-display-md));
+  line-height: var(--leading-snug);
+  color: var(--colour-paper);
+}
+
+.home-quote__attr {
+  margin: var(--space-7) auto 0;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-style: italic;
+  font-size: var(--text-md);
+  color: var(--colour-accent);
+}
+
+/* Mark box is explicitly wider than the glyph (1.4em vs ~0.5em visible) with
+   internal padding, so the glyph sits inside the box with breathing room on
+   both sides. Without this, the span's shrink-to-fit width hugs the glyph's
+   advance width — anything the font draws with negative left-side bearing
+   (typical for typographic quotes) extends outside the inline box and gets
+   clipped by mobile WebKit's text rendering. `overflow: visible` is set
+   explicitly so no parent style can clip it either. */
+.home-quote__mark {
+  position: absolute;
+  display: block;
+  width: 1.4em;
+  padding: 0 0.2em;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(96px, 18vw, var(--text-mark));
+  line-height: 1;
+  color: var(--colour-accent);
+  opacity: 0.7;
+  pointer-events: none;
+  user-select: none;
+  overflow: visible;
+}
+
+/* The open / close marks each align their glyph toward the OUTER edge of
+   their box (left for open, right for close), so the visible glyph hugs
+   the section corner rather than sitting awkwardly inside the wider box. */
+.home-quote__mark--open {
+  top: var(--space-5);
+  left: var(--space-6);
+  text-align: left;
+}
+
+.home-quote__mark--close {
+  right: var(--space-6);
+  bottom: var(--space-5);
+  text-align: right;
+}
+
+@media (min-width: 640px) {
+  .home-quote {
+    padding: var(--space-11) var(--space-8);
+  }
+
+  .home-quote__attr {
+    font-size: var(--text-lg);
+  }
+}
+
+/* Wide screens only: marks anchor to the text wrapper and hug the blockquote.
+   Below this width the marks would extend past the viewport, so they stay
+   pinned to the section corners (the default rules above). */
+@media (min-width: 1024px) {
+  .home-quote__inner {
+    position: relative;
+  }
+
+  .home-quote__mark--open {
+    top: -0.25em;
+    left: -0.75em;
+  }
+
+  .home-quote__mark--close {
+    right: -0.75em;
+    bottom: -0.85em;
+    top: auto;
+    left: auto;
+  }
+}
+
+/* — 9.4 Locations section. */
+.home-locations {
+  background: var(--colour-paper);
+  padding: var(--space-10) var(--space-5);
+}
+
+.home-locations__inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: var(--space-9);
+}
+
+.home-locations__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.home-locations__cta-row {
+  display: flex;
+  justify-content: center;
+}
+
+.home-locations__heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, var(--text-display-md));
+  line-height: var(--leading-snug);
+  color: var(--colour-ink-strong);
+}
+
+.home-locations__heading-line {
+  display: block;
+}
+
+.home-locations__cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* Card tilts (-1deg / 1deg / -1deg) only apply once data-revealed flips, so
+   the reveal animation can land them at their resting angle. The middle card
+   on desktop also gets a permanent 16px y-offset (see --card-resting-y); the
+   reveal-from-below state adds 16px on top. Hover snaps the card flat fast. */
+.home-locations__card-item {
+  --card-resting-y: 0px;
+  width: 100%;
+  max-width: 400px;
+  align-self: center;
+  rotate: 0deg;
+  transition:
+    opacity 700ms ease-out calc(var(--reveal-index, 0) * 120ms),
+    translate 700ms ease-out calc(var(--reveal-index, 0) * 120ms),
+    rotate var(--transition-fast);
+}
+
+[data-reveal-stagger] > .home-locations__card-item {
+  translate: 0 calc(var(--card-resting-y) + 16px);
+}
+
+[data-reveal-stagger] > .home-locations__card-item[data-revealed="true"] {
+  translate: 0 var(--card-resting-y);
+}
+
+.home-locations__card-item[data-revealed="true"]:nth-child(1) { rotate: -1deg; }
+.home-locations__card-item[data-revealed="true"]:nth-child(2) { rotate: 1deg; }
+.home-locations__card-item[data-revealed="true"]:nth-child(3) { rotate: -1deg; }
+
+.home-locations__card-item:hover,
+.home-locations__card-item:focus-within {
+  rotate: 0deg;
+}
+
+.home-locations__empty {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--colour-ink-muted);
+}
+
+@media (min-width: 640px) {
+  .home-locations {
+    padding: var(--space-10) var(--space-8);
+  }
+}
+
+@media (min-width: 960px) {
+  .home-locations__inner {
+    grid-template-columns: 1fr auto;
+    column-gap: var(--space-8);
+  }
+
+  .home-locations__header {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .home-locations__cta-row {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    justify-content: flex-end;
+  }
+
+  .home-locations__cards,
+  .home-locations__empty {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .home-locations__cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    overflow: visible;
+  }
+
+  .home-locations__card-item {
+    max-width: none;
+  }
+
+  /* Middle card hangs 16px below the row line — a deliberate visual offset.
+     The reveal-from-below adds another 16px to the hidden translate value
+     via the `[data-reveal-stagger] > .home-locations__card-item` rule. */
+  .home-locations__card-item:nth-child(2) {
+    --card-resting-y: 16px;
+  }
+}
+
+/* — Homepage location card. Mirrors the about-section framed-photo
+   treatment: 1px border + 12px padding around the photo, no radius on
+   the photo itself, script caption beneath. */
+.home-location-card {
+  display: block;
+  padding: 12px;
+  background: var(--colour-card);
+  color: var(--colour-ink-strong);
+  border: 1px solid var(--colour-card-line);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: transform var(--transition-fast);
+}
+
+.home-location-card:hover,
+.home-location-card:focus-visible {
+  transform: translateY(-2px);
+}
+
+/* When the card has no photo (no <img> inside), the surface-alt background
+   shows with the ReFrame logo centered. The <img> overlays when present. */
+.home-location-card__media {
+  aspect-ratio: 4 / 3;
+  background-color: var(--colour-surface-alt);
+  background-image: url('/static/img/logo.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 80px auto;
+  overflow: hidden;
+}
+
+.home-location-card__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: center;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+.home-location-card:hover .home-location-card__image,
+.home-location-card:focus-visible .home-location-card__image {
+  transform: scale(1.02);
+  filter: brightness(0.85);
+}
+
+.home-location-card__caption {
+  padding: 24px 0;
+  font-family: var(--font-script);
+  font-size: var(--text-lg);
+  color: var(--colour-ink);
+  text-align: center;
+}
+
+/* — 9.5 Setup section. The section is intentionally not full-height — its
+     size comes from the card's content padding plus the card's vertical
+     margin. */
+.home-setup {
+  background: var(--colour-surface-alt);
+  padding: 0 var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-setup__content .section-label {
+  color: var(--colour-accent);
+}
+
+.home-setup__card {
+  width: 100%;
+  max-width: 1240px;
+  margin: var(--space-5) 0;
+  background: var(--colour-deep);
+  color: var(--colour-accent);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-setup__image-col {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--colour-deep);
+  overflow: hidden;
+}
+
+.home-setup__image-col::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--colour-deep);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.home-setup__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-setup__content {
+  padding: var(--space-8) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.home-setup__heading {
+  margin: 0 0 16px;
+  max-width: 500px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, var(--text-display-md));
+  line-height: var(--leading-snug);
+  color: var(--colour-paper);
+}
+
+.home-setup__body {
+  margin: 0;
+  max-width: 450px;
+  font-size: 17px;
+  line-height: var(--leading-base);
+  color: var(--colour-paper);
+}
+
+.home-setup__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+@media (min-width: 960px) {
+  .home-setup {
+    padding: 0 var(--space-8);
+  }
+
+  .home-setup__card {
+    flex-direction: row;
+    align-items: stretch;
+    margin: var(--space-10) 0;
+  }
+
+  .home-setup__image-col {
+    flex: 0 0 38.1966%;
+    aspect-ratio: auto;
+  }
+
+  .home-setup__image {
+    position: absolute;
+    inset: 0;
+  }
+
+  .home-setup__content {
+    flex: 1 1 auto;
+    padding: var(--space-8);
+    justify-content: center;
+  }
+}
+
+/* ── 10. Legacy v1/v2 page styles ──────────────────────────────────────── */
+/* Station / viewer / upload / error / admin / locations / host all live
+   below. They keep their v2 look (sage-deep accents, cream cards) on top of
+   the new light-beige body. A follow-up redesign pass will retire them. */
+
+/* ── /locations page ───────────────────────────────────────────────────── */
+
+.locations-page {
+  background: var(--colour-surface-alt);
+  padding: calc(64px + var(--space-6)) var(--space-5) var(--space-10);
+}
+
+.locations-page__inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.locations-page__heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, var(--text-display-md));
+  line-height: var(--leading-snug);
+  color: var(--colour-ink-strong);
+}
+
+.locations-page__country-heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(24px, 3vw, var(--text-display-sm));
+  line-height: var(--leading-snug);
+  color: var(--colour-ink-strong);
+}
+
+/* Framed map — mirrors the about-section figure (1px border + 12px padding
+   around the content, square inner edge). Positioning context for the
+   two-finger hint pill (`.locations-map__hint`). */
+.locations-page__map-frame {
+  margin: 0;
+  padding: 12px;
+  background: var(--colour-card);
+  border: 1px solid var(--colour-card-line);
+  border-radius: 4px;
+  position: relative;
+}
+
+.locations-map {
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  /* Single-finger swipes scroll the page natively; two-finger gestures fall
+     through to Leaflet (pinch-zoom isn't in the token list, so the browser
+     hands multi-touch to JS rather than zooming the page).
+     `!important` is required to beat Leaflet's vendor rule
+     `.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom { touch-action: none; }`
+     (leaflet.css:78–81). Without this, the browser refuses to scroll on the
+     map and the gesture feels frozen. */
+  touch-action: pan-y !important;
+  /* Force a local stacking context so Leaflet's internal panes (z-index up
+     to 700 on markers / popups) stay contained — without this they bleed
+     above the fixed nav bar (z-index 50). */
+  isolation: isolate;
+}
+
+/* Two-finger hint pill, surfaced by locations-map.js when the user puts one
+   finger on the map. Lives in the figure wrapper (not inside .locations-map)
+   so Leaflet's pane management can't touch it. */
+.locations-map__hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 800;
+  padding: var(--space-2) var(--space-4);
+  background: var(--scrim-strong);
+  color: var(--colour-paper);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.locations-map__hint.is-visible {
+  opacity: 1;
+}
+
+@media (min-width: 640px) {
+  .locations-map {
+    height: 500px;
+  }
+}
+
+/* Subtle green wash on the tile layer so the map sits in the site's palette
+   without obscuring street labels. Markers, attribution and popups live in
+   sibling panes and aren't affected. */
+.locations-map .leaflet-tile-pane {
+  filter: sepia(0.35) hue-rotate(70deg) saturate(0.75) brightness(0.98);
+}
+
+/* Themed marker — overrides Leaflet's default divIcon background/border. */
+.locations-map__marker {
+  background: transparent;
+  border: none;
+  filter: drop-shadow(var(--shadow-marker));
+}
+
+.locations-map__marker-pin {
+  fill: var(--colour-deep);
+}
+
+.locations-map__marker-dot {
+  fill: var(--colour-accent);
+}
+
+.locations-map__popup a {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--colour-ink-strong);
+}
+
+.locations-map__popup p {
+  margin: var(--space-1) 0 0;
+  color: var(--colour-ink);
+}
+
+.locations-page__country {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.locations-page__location {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.locations-page__location-heading {
+  text-transform: uppercase;
+}
+
+.locations-page__cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+.locations-page__card-item {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.locations-page__empty {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--colour-ink);
+}
+
+@media (min-width: 640px) {
+  .locations-page {
+    padding: calc(72px + var(--space-7)) var(--space-8) var(--space-10);
+  }
+
+  .locations-page__cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .locations-page__card-item {
+    max-width: none;
+  }
+}
+
+@media (min-width: 960px) {
+  .locations-page {
+    padding: calc(72px + var(--space-7)) var(--space-8) var(--space-11);
+  }
+
+  .locations-page__cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Propose-your-location section — full-bleed paper band sitting beneath the
+   surface-alt locations grid, giving a colour step like the homepage section
+   sequence. Centred, dark-green text, default .btn-outline. */
+
+.locations-host {
+  background: var(--colour-paper);
+  padding: var(--space-10) var(--space-5);
+}
+
+.locations-host__inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-5);
+  color: var(--colour-deep);
+}
+
+.locations-host__heading {
+  margin: 0;
+  max-width: 500px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, var(--text-display-md));
+  line-height: var(--leading-snug);
+  color: var(--colour-deep);
+}
+
+.locations-host__body {
+  margin: 0;
+  max-width: 450px;
+  font-size: 17px;
+  line-height: var(--leading-base);
+  color: var(--colour-deep);
+}
+
+.locations-host__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .locations-host {
+    padding: var(--space-10) var(--space-8);
+  }
+}
+
+@media (min-width: 960px) {
+  .locations-host {
+    padding: var(--space-10) var(--space-8);
+  }
+}
+
+/* ── /host page (community submission form) ────────────────────────────── */
+/* Full-bleed page in the "abundant brooks" system: paper hero band,
+   surface-alt form band with a white card, deep-green reassurance band.
+   Mirrors the homepage's home-hero → home-about → home-setup rhythm. */
+
+.host-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--colour-surface-alt);
+}
+
+/* — Hero band — inherits the page background so it reads as one continuous
+     surface with the form band below. */
+
+.host-hero {
+  background: transparent;
+  padding: calc(64px + var(--space-7)) var(--space-5) var(--space-6);
+  display: flex;
+  justify-content: center;
+}
+
+.host-hero__inner {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.host-hero__heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, var(--text-display-md));
+  line-height: var(--leading-snug);
+  color: var(--colour-ink-strong);
+}
+
+.host-hero__intro {
+  margin: 0;
+  max-width: 560px;
+  font-size: 17px;
+  line-height: var(--leading-base);
+  color: var(--colour-ink);
+}
+
+.host-hero__back {
+  margin-top: var(--space-3);
+}
+
+@media (min-width: 720px) {
+  .host-hero {
+    padding: calc(72px + var(--space-8)) var(--space-6) var(--space-8);
+  }
+}
+
+/* — Form band — also inherits the page background; the white form card on
+     top is the focal element. */
+
+.host-form {
+  background: transparent;
+  padding: 0 var(--space-5) var(--space-7);
+  display: flex;
+  justify-content: center;
+}
+
+.host-form__card {
+  width: 100%;
+  max-width: 720px;
+  background: var(--colour-card);
+  border: 1px solid var(--colour-card-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.host-form__error {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--colour-paper);
+  border-left: 4px solid var(--colour-signal);
+  color: var(--colour-ink-strong);
+  font-size: var(--text-sm);
+  line-height: var(--leading-base);
+}
+
+.host-form__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.host-form__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+.host-form__field {
+  display: flex;
+  flex-direction: column;
+}
+
+.host-form__fieldset {
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  border: 0;
+}
+
+.host-form__label {
+  display: inline-block;
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--colour-mid);
+}
+
+.host-form__hint {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-base);
+  color: var(--colour-ink);
+}
+
+.host-form__input,
+.host-form__textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-3);
+  background: var(--colour-card);
+  border: 1px solid var(--colour-card-line);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  color: var(--colour-ink-strong);
+  transition: border-color var(--transition-fast);
+}
+
+.host-form__textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.host-form__input:focus-visible,
+.host-form__textarea:focus-visible {
+  border-color: var(--colour-ink-strong);
+}
+
+.host-form__input--invalid,
+.host-form__input--invalid:focus-visible {
+  border-color: var(--colour-signal);
+}
+
+/* Inline per-field error — sits directly below the input, only revealed
+   when the client-side validator (static/js/host.js) flags the value. */
+.host-form__field-error {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-base);
+  color: var(--colour-signal);
+}
+
+.host-form__actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: var(--space-2);
+}
+
+.host-form__honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+@media (min-width: 720px) {
+  .host-form {
+    padding: 0 var(--space-6) var(--space-8);
+  }
+
+  .host-form__card {
+    padding: var(--space-8);
+  }
+
+  .host-form__row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Required-field asterisk — small signal-coloured marker tucked against the
+   label. `aria-label` on the span carries the localised "required" word so
+   screen readers announce something useful. */
+.host-form__required {
+  margin-left: 4px;
+  color: var(--colour-signal);
+  font-family: var(--font-mono);
+}
+
+/* — Pill tags (interests) — checkbox-as-pill toggle. The native checkbox
+     is visually hidden; the wrapping label is the visible target. The
+     filled state is driven by `:has(:checked)`. */
+
+.host-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.host-tags__tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-5);
+  background: transparent;
+  border: 1px solid var(--colour-ink);
+  /* Stadium at any height: a fixed radius (var(--radius-pill) = 32px) stops
+     looking like a pill once the label wraps to ~3 lines, since it no longer
+     reaches half the pill's height. A large value always clamps to half the
+     shorter side, so wrapped pills stay fully rounded. */
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--colour-ink-strong);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.host-tags__tag:has(.host-tags__input:checked) {
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+  border-color: var(--colour-deep);
+}
+
+.host-tags__tag:has(.host-tags__input:focus-visible) {
+  outline: 2px solid var(--colour-ink-strong);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .host-tags__tag:hover {
+    border-color: var(--colour-ink-strong);
+  }
+
+  .host-tags__tag:has(.host-tags__input:checked):hover {
+    filter: brightness(1.1);
+  }
+}
+
+.host-tags__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.host-tags__label {
+  display: inline-block;
+}
+
+
+/* ── Station page sections ("abundant brooks") ─────────────────────────── */
+/* Each section is full-bleed (main drops its column for station pages, see
+   §7), with its own background band and an inner column. Alternating
+   --colour-paper and --colour-surface-alt creates the homepage-style
+   "stop and read" rhythm. The station-hero clears the fixed chrome
+   itself via top padding.
+
+   Image frames (hero, reference, viewer photo, upload preview/uploading/
+   validating/success) share the white-card pattern from home-about /
+   home-location-card: 12px padding, 1px --colour-card-line border,
+   --radius-sm. The photo inside the frame has no radius. */
+
+.station-hero {
+  background: var(--colour-paper);
+  padding: calc(64px + var(--space-7)) var(--space-5) var(--space-9);
+}
+
+@media (min-width: 640px) {
+  .station-hero {
+    padding: calc(72px + var(--space-7)) var(--space-6) var(--space-10);
+  }
+}
+
+.station-hero__inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  text-align: center;
+  align-items: center;
+}
+
+.station-hero__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 7vw, var(--text-display-md));
+  line-height: var(--leading-tight);
+  color: var(--colour-ink-strong);
+}
+
+.station-hero__meta {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--colour-mid);
+}
+
+.station-hero__inner > .viewer {
+  margin-top: var(--space-4);
+}
+
+/* ── Story section ─────────────────────────────────────────────────────── */
+
+.station-story {
+  background: var(--colour-surface-alt);
+  padding: var(--space-9) var(--space-5);
+}
+
+.station-story__inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+.station-story__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+/* Square map frame — mirrors .locations-page__map-frame (12px white card,
+   1px border) but constrained to 1:1. `position: relative` anchors the
+   two-finger hint pill (`.locations-map__hint`). */
+.station-story__map-frame {
+  margin: 0;
+  padding: 12px;
+  background: var(--colour-card);
+  border: 1px solid var(--colour-card-line);
+  border-radius: 4px;
+  align-self: start;
+  position: relative;
+}
+
+.station-story__map {
+  aspect-ratio: 1 / 1;
+  height: auto;
+  width: 100%;
+}
+
+.station-story__heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 4.5vw, var(--text-display-sm));
+  line-height: var(--leading-tight);
+  color: var(--colour-ink-strong);
+}
+
+.station-story__body {
+  margin: 0;
+  max-width: 650px;
+  font-size: var(--text-md);
+  line-height: var(--leading-base);
+  color: var(--colour-ink);
+  white-space: pre-line;
+}
+
+.station-story__stats {
+  margin: 16px 0 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--colour-mid);
+}
+
+@media (min-width: 640px) {
+  .station-story {
+    padding: var(--space-10) var(--space-6);
+  }
+
+  .station-story__inner:has(.station-story__map-frame) {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+    gap: var(--space-7);
+  }
+}
+
+/* ── Upload section ────────────────────────────────────────────────────── */
+/* The section sits on the lighter alt surface so the dark-green card inside
+   stands out from the page. The inner .upload IS the card (mirror of
+   .home-setup__card). Applied consistently to every station regardless of
+   photo count so the page reads the same across cold-start and N-photo. */
+
+.station-upload {
+  background: var(--colour-paper);
+  padding: var(--space-9) var(--space-5);
+}
+
+.station-upload__inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.station-upload .upload {
+  background: var(--colour-surface-alt);
+  border-radius: var(--radius-md);
+  padding: var(--space-8) var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .station-upload {
+    padding: var(--space-10) var(--space-6);
+  }
+
+  .station-upload .upload {
+    padding: var(--space-8);
+  }
+}
+
+.station-upload .upload__pill {
+  background: var(--colour-card-line);
+}
+
+/* ── Others section (cross-station cards) ──────────────────────────────── */
+
+.station-others {
+  background: var(--colour-surface-alt);
+  padding: var(--space-9) var(--space-5);
+}
+
+.station-others__inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.station-others__heading {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 4.5vw, var(--text-display-sm));
+  line-height: var(--leading-tight);
+  color: var(--colour-ink-strong);
+}
+
+.station-others__cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+.station-others__card-item {
+  width: 100%;
+  max-width: 400px;
+  align-self: center;
+}
+
+@media (min-width: 640px) {
+  .station-others {
+    padding: var(--space-10) var(--space-6);
+  }
+
+  .station-others__cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .station-others__card-item {
+    max-width: none;
+  }
+}
+
+@media (min-width: 960px) {
+  .station-others__cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Cards live in a 720px column on the station page (narrower than the
+   homepage / locations placements), so dial the script-caption text down
+   one step so it sits comfortably in the narrower card. */
+.station-others .home-location-card__caption {
+  font-size: var(--text-md);
+}
+
+/* ── visually-hidden utility (screen-reader-only text) ─────────────────── */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Timelapse viewer (spec §5.5) ──────────────────────────────────────── */
+/* The .viewer IS the white-card frame at the top of the hero: 12px padding,
+   1px --colour-card-line border. Inside, the photo sits on top and the
+   controls sit underneath (where the script caption used to be). The
+   .viewer__photo stays as the positioning context for the absolutely-
+   positioned date and play overlay. Controls are deep-green outline buttons
+   (matching .btn-outline); play/pause is a solid deep-green pill — NOT
+   signal-red — viewer is consumption; --colour-signal stays reserved for
+   the upload moment. */
+
+.viewer {
+  width: 100%;
+  padding: 12px;
+  background: var(--colour-card);
+  border: 1px solid var(--colour-card-line);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.viewer__photo {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--colour-ink-strong);
+  overflow: hidden;
+}
+
+/* Empty state — surface-alt fill with the brand wordmark centered, mirroring
+   the old cold-start `.station-hero__frame` treatment. No <img> — the photo
+   container's background does all the work. */
+.viewer__photo--empty {
+  background-color: var(--colour-surface-alt);
+  background-image: url('/static/img/logo.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 120px auto;
+}
+
+.viewer__empty-frame {
+  width: 100%;
+  height: 100%;
+}
+
+.viewer__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.viewer__date {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-3);
+  padding: 6px 10px;
+  background: var(--scrim-chip);
+  color: var(--colour-paper);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+.viewer__play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--colour-paper);
+  opacity: 0.25;
+  transition: opacity var(--transition-fast);
+}
+
+.viewer__play-overlay:hover,
+.viewer__play-overlay:focus-visible {
+  opacity: 0.5;
+}
+
+.viewer__play-overlay svg {
+  width: 96px;
+  height: 96px;
+  fill: currentColor;
+}
+
+.viewer__controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.viewer__btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--colour-deep);
+  border: 1px solid var(--colour-deep);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .viewer__btn:hover {
+    background: var(--colour-deep);
+    color: var(--colour-paper);
+  }
+}
+
+.viewer__btn:focus-visible,
+.viewer__btn:active {
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+  transition: none;
+}
+
+.viewer__btn--step {
+  width: 48px;
+  height: 48px;
+}
+
+.viewer__btn--step svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.viewer__btn--play {
+  width: 48px;
+  height: 48px;
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+  border-color: var(--colour-deep);
+  position: relative;
+}
+
+.viewer__btn--play:hover,
+.viewer__btn--play:focus-visible {
+  background: var(--colour-ink-strong);
+  color: var(--colour-paper);
+  filter: brightness(1.1);
+}
+
+.viewer__btn--play svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.viewer__icon--pause {
+  display: none;
+}
+
+.viewer__btn--play.is-playing .viewer__icon--play {
+  display: none;
+}
+
+.viewer__btn--play.is-playing .viewer__icon--pause {
+  display: inline-block;
+}
+
+.viewer__scrubber {
+  flex: 1 1 200px;
+  min-width: 0;
+  position: relative;
+}
+
+/* Month labels float above the track so they don't contribute to the
+   scrubber's layout height — that lets the (short) track sit vertically
+   centered with the buttons via `align-items: center` on .viewer__controls. */
+.viewer__months {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + var(--space-1));
+  height: var(--text-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--colour-mid);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.viewer__month-label {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.viewer__scrubber-track {
+  position: relative;
+  height: 8px;
+  cursor: pointer;
+  background: var(--colour-card-line);
+  border-radius: var(--radius-sm);
+}
+
+.viewer__ticks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.viewer__tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--colour-mid);
+}
+
+.viewer__playhead {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 4px;
+  margin-left: -2px;
+  background: var(--colour-deep);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  transition: left var(--transition-fast);
+}
+
+.viewer__speed {
+  flex: 0 0 auto;
+}
+
+.viewer__speed select {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  padding: var(--space-2) var(--space-5) var(--space-2) var(--space-3);
+  background: var(--colour-card);
+  color: var(--colour-deep);
+  border: 1px solid var(--colour-deep);
+  border-radius: var(--radius-sm);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.viewer__indicator {
+  flex: 1 1 auto;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  color: var(--colour-mid);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Solo indicator — empty mode only. Sits directly under the photo with no
+   flanking controls, centered against the full frame. */
+.viewer__indicator--solo {
+  flex: none;
+  width: 100%;
+  text-align: center;
+}
+
+/* Single mode (1 frame — reference-only or upload-only): the controls DOM
+   is rendered server-side so viewer.js can reveal them dynamically when
+   appendFrame crosses 2 frames, but with only one frame there's nothing
+   to step through or play. CSS hides them entirely. Same for the centred
+   play overlay. */
+.viewer--single .viewer__controls,
+.viewer--single .viewer__play-overlay {
+  display: none;
+}
+
+/* On narrow viewports the viewer escapes .station-hero's 24px side padding
+   so the card spans the full viewport, keeping a small 8px inline padding
+   inside the card so the photo + controls don't sit flush against the
+   border. Vertical padding stays at the desktop 12px. The width/margin
+   pair widens past the parent flex container's cross-axis constraint
+   (.station-hero__inner uses align-items: center, which caps a child's
+   width at the parent's content box — negative margins alone shift but
+   don't widen). */
+@media (max-width: 639px) {
+  .viewer {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    padding-inline: var(--space-2);
+  }
+}
+
+/* ── Upload section (spec §6) ──────────────────────────────────────────── */
+/* The .upload root sits inside .station-upload__inner. Preview / uploading /
+   validating / success state photos are wrapped in the same white-card frame
+   primitive (12px padding, 1px --colour-card-line border). The picker CTA
+   stays signal-red — brand-reserved upload colour. The .upload--emphasis
+   variant for 0-photo stations lives in the .station-upload--emphasis rules
+   above. */
+
+.upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  text-align: center;
+}
+
+.upload__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.upload__heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 4.5vw, var(--text-display-sm));
+  line-height: var(--leading-tight);
+  color: var(--colour-ink-strong);
+}
+
+.upload__body {
+  margin: 0;
+  max-width: 520px;
+  font-size: var(--text-md);
+  line-height: var(--leading-base);
+  color: var(--colour-ink);
+}
+
+.upload__sub-heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  color: var(--colour-ink-strong);
+}
+
+.upload__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* CTA shape mirrors .btn-outline on the main page: small radius,
+   mono uppercase label, 48px tap target. The --primary variant is the
+   FILLED version (paper background, ink-strong text) since the upload
+   card is dark-green; --secondary stays as the outline. */
+.upload__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: filter var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.upload__cta--primary {
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+  border-color: var(--colour-deep);
+}
+
+.upload__cta--primary:hover,
+.upload__cta--primary:focus-visible {
+  filter: brightness(0.95);
+}
+
+.upload__cta--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.upload__cta--secondary {
+  background: transparent;
+  color: var(--colour-deep);
+  border: 1px solid var(--colour-deep);
+}
+
+@media (hover: hover) {
+  .upload__cta--secondary:hover {
+    background: var(--colour-deep);
+    color: var(--colour-paper);
+  }
+}
+
+.upload__cta--secondary:focus-visible,
+.upload__cta--secondary:active {
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+  transition: none;
+}
+
+.upload__cta--pulse {
+  animation: upload-pulse 1.6s ease-out 1;
+  outline: 2px solid transparent;
+}
+
+@keyframes upload-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(var(--colour-accent-rgb), 0.7); }
+  60%  { box-shadow: 0 0 0 12px rgba(var(--colour-accent-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--colour-accent-rgb), 0); }
+}
+
+/* Two-CTA row for the picker: gallery primary + camera secondary. Flex-wrap
+   keeps both buttons on one line at comfortable widths and stacks them when
+   the container is narrow. The camera button is default-hidden — upload.js
+   reveals it by adding `is-android` to the section root when it detects
+   Android. iOS Safari's native file-input sheet already offers Take Photo,
+   and desktop browsers don't have a useful camera-capture path. */
+.upload__cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.upload__cta-row .upload__cta {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.upload__cta--camera,
+#upload-camera-input {
+  display: none;
+}
+
+.upload.is-android .upload__cta--camera {
+  display: inline-flex;
+}
+
+/* All state shells share a flex-column layout so child elements (sub-heading,
+   preview frame, progress, pill, actions, etc.) have consistent spacing
+   between them. */
+.upload__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.upload__state[hidden] {
+  display: none;
+}
+
+.upload__ack {
+  margin: 0;
+  max-width: 450px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--colour-mid);
+  letter-spacing: 0.04em;
+}
+
+/* Inline button that sits on its own line (after a <br> in the markup) so
+   it looks like the next line of the ack text. No padding/margin so the
+   line-height of the parent paragraph governs the gap above; text starts
+   flush with the line above. */
+.upload__ack-link {
+  display: inline;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--colour-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.upload__ack-panel {
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--colour-surface-alt);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--colour-ink);
+}
+
+.upload__ack-panel-body {
+  margin: 0 0 var(--space-3);
+}
+
+.upload__ack-panel-close {
+  background: transparent;
+  border: 0;
+  padding: var(--space-3) var(--space-4);
+  margin: calc(var(--space-3) * -1) calc(var(--space-4) * -1);
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--colour-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* Preview / uploading / validating frames — white-card primitive (12px
+   padding, 1px line). Image inside is letterboxed (object-fit: contain) so
+   the user sees the whole frame, not a crop. */
+.upload__preview-frame {
+  position: relative;
+  width: 100%;
+}
+
+.upload__preview-frame--greyed::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--scrim-photo);
+  pointer-events: none;
+}
+
+.upload__preview-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* "Cannot show preview" placeholder — shown when the browser couldn't decode
+   the picked file (HEIC outside Safari is the common case). Sized to roughly
+   the 16:9 the image would have filled so the layout doesn't jump. */
+.upload__preview-no-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  padding: var(--space-5);
+  background: var(--colour-card);
+  border: 1px dashed var(--colour-card-line);
+  border-radius: var(--radius-md);
+  color: var(--colour-ink-muted, var(--colour-ink));
+  font-size: var(--text-sm);
+}
+
+.upload__preview-no-preview[hidden] {
+  display: none;
+}
+
+.upload__preview-frame[data-upload-no-preview] .upload__preview-image {
+  display: none;
+}
+
+/* Skip the greyed overlay when there's no preview to grey out, otherwise it
+   sits on top of the placeholder text. */
+.upload__preview-frame--greyed[data-upload-no-preview]::after {
+  content: none;
+}
+
+.upload__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.upload__progress {
+  width: 100%;
+  height: 8px;
+  background: var(--colour-card-line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.upload__progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--colour-signal);
+  transition: width var(--transition-fast);
+}
+
+.upload__pill {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--colour-surface-alt);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--colour-deep);
+  letter-spacing: 0.04em;
+  align-self: center;
+}
+
+.upload__spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--colour-card-line);
+  border-top-color: var(--colour-deep);
+  animation: upload-spin 800ms linear infinite;
+  display: inline-block;
+}
+
+.upload__spinner--large {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+}
+
+@keyframes upload-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Validating overlay — full deep-green tint across the preview frame
+   (mirroring the uploading state's --greyed treatment) with centred
+   paper-coloured copy. Reads as "the system is examining your photo"
+   rather than a floating popover. Held for at least 1500ms by upload.js. */
+.upload__preview-frame--with-overlay {
+  isolation: isolate;
+}
+
+.upload__preview-frame--with-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--scrim-photo);
+  pointer-events: none;
+  border-radius: var(--radius-md);
+}
+
+.upload__validating-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  text-align: center;
+  color: var(--colour-paper);
+}
+
+.upload__validating-overlay .upload__spinner--large {
+  border-color: rgba(var(--colour-paper-rgb), 0.3);
+  border-top-color: var(--colour-paper);
+}
+
+.upload__validating-status {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-lg, var(--text-md, 18px));
+  font-weight: 500;
+  color: var(--colour-paper);
+}
+
+.upload__validating-sub {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  color: var(--colour-paper);
+  opacity: 0.85;
+  max-width: 32ch;
+}
+
+/* Success card — deep-green filled panel with a circular accent-tinted
+   checkmark badge above the heading. The viewer above live-updates with the
+   new frame; the refresh hint sits below for users who want a clean reload. */
+.upload__success {
+  width: 100%;
+  padding: var(--space-7) var(--space-5);
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.upload__success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-2);
+  border-radius: 50%;
+  background: var(--colour-accent);
+  color: var(--colour-deep);
+}
+
+.upload__success-icon svg {
+  width: 36px;
+  height: 36px;
+}
+
+.upload__success-heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(24px, 4vw, var(--text-display-sm));
+  line-height: var(--leading-snug);
+  color: var(--colour-paper);
+}
+
+.upload__success-date {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--colour-accent);
+  letter-spacing: 0.04em;
+}
+
+.upload__success-body {
+  margin: var(--space-3) 0 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: var(--leading-base);
+  color: var(--colour-paper);
+  opacity: 0.85;
+  max-width: 36ch;
+}
+
+.upload__success [data-upload-success-view] {
+  margin-top: var(--space-3);
+}
+
+/* Failure inline-notice — signal-red filled panel with a paper-circle alert
+   badge. Mirrors the success card's structure so both states feel like
+   siblings; the colour communicates outcome at a glance. */
+.inline-notice {
+  width: 100%;
+  background: var(--colour-signal);
+  color: var(--colour-paper);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-7) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+}
+
+.inline-notice__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--colour-paper);
+  color: var(--colour-signal);
+}
+
+.inline-notice__icon svg {
+  width: 36px;
+  height: 36px;
+  /* Triangle centroid sits below the bounding-box center; nudge up so the
+     icon reads as visually centred inside the circular badge. */
+  transform: translateY(-2px);
+}
+
+.inline-notice__body {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--leading-base);
+  color: var(--colour-paper);
+  max-width: 36ch;
+}
+
+.inline-notice__body a {
+  color: var(--colour-paper);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.inline-notice__body a:hover {
+  color: var(--colour-paper);
+  text-decoration-thickness: 2px;
+}
+
+/* CTA variant for the failure card: paper background with signal-red text,
+   so it stays legible against the signal-red panel. */
+.upload__cta--on-signal {
+  background: var(--colour-paper);
+  color: var(--colour-signal);
+  border-color: var(--colour-paper);
+}
+
+.upload__cta--on-signal:hover,
+.upload__cta--on-signal:focus-visible {
+  filter: brightness(0.95);
+}
+
+/* CTA variant for the success card: paper background with deep-green text —
+   the "light" version of .upload__cta--primary, used on the deep-green
+   success panel. */
+.upload__cta--on-deep {
+  background: var(--colour-paper);
+  color: var(--colour-deep);
+  border-color: var(--colour-paper);
+}
+
+.upload__cta--on-deep:hover,
+.upload__cta--on-deep:focus-visible {
+  filter: brightness(0.95);
+}
+
+/* ── Themed error pages (§10.4) ────────────────────────────────────────── */
+
+.error {
+  flex: 1;
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+  padding: var(--space-11) var(--space-6) var(--space-6);
+  text-align: center;
+}
+
+.error__inner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.error .section-label {
+  color: var(--colour-accent);
+}
+
+.error__code {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(120px, 22vw, var(--text-mark));
+  line-height: 0.9;
+  color: var(--colour-accent);
+}
+
+.error__heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(32px, 5vw, var(--text-display-md));
+  line-height: var(--leading-snug);
+  color: var(--colour-paper);
+}
+
+.error__body {
+  margin: 0;
+  max-width: 520px;
+  font-size: var(--text-md);
+  color: var(--colour-paper);
+  opacity: 0.9;
+}
+
+/* ── Admin shell (§7.5, §9.7) ───────────────────────────────────────────── */
+/*
+   The admin diverges from the public site: no fixed wavy nav, no footer band.
+   The admin/layout.html template suppresses both via {% block site_header %}
+   and {% block site_footer %} overrides. This block then takes over <main>
+   to render a left sidebar + content area.
+*/
+
+main:has(> .admin-app) {
+  padding: 0;
+  gap: 0;
+}
+
+main:has(> .admin-app) > * {
+  max-width: none;
+  margin: 0;
+}
+
+.admin-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--colour-surface);
+  color: var(--colour-ink);
+}
+
+/* Sidebar — top bar on mobile, fixed-width column on desktop. */
+.admin-sidebar {
+  background: var(--colour-paper);
+  border-bottom: 1px solid var(--colour-card-line);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.admin-sidebar__brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-sidebar__brand-row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  line-height: 1;
+}
+
+.admin-sidebar__logo {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  color: var(--colour-deep);
+  flex: 0 0 32px;
+}
+
+.admin-sidebar__logo .logo-mark {
+  width: 32px;
+  height: 32px;
+  display: block;
+  /* Optical centering — Anton's visual mass sits above the geometric middle. */
+  transform: translateY(-2px);
+}
+
+.admin-sidebar__wordmark-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-xl);
+  letter-spacing: 0.04em;
+  color: var(--colour-ink-strong);
+  line-height: 1;
+}
+
+.admin-sidebar__brand-tag {
+  /* Align with the wordmark's text column: logo width (32) + brand-row gap. */
+  padding-left: calc(32px + var(--space-2));
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--colour-ink-muted);
+}
+
+.admin-sidebar__nav {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-1);
+  overflow-x: auto;
+}
+
+.admin-sidebar__link {
+  flex: 0 0 auto;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  color: var(--colour-ink-strong);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.admin-sidebar__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.admin-sidebar__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.admin-sidebar__link:hover {
+  background: var(--colour-surface-alt);
+}
+
+.admin-sidebar__link.is-active {
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+}
+
+.admin-sidebar__view-site {
+  /* Inherits .btn-outline; this rule just controls placement on mobile. */
+  align-self: stretch;
+  justify-content: center;
+}
+
+/* Content area. */
+.admin-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5) var(--space-4) var(--space-7);
+  min-width: 0;
+}
+
+.admin-content__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--colour-card-line);
+}
+
+.admin-content__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.admin-page-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-display-sm);
+  line-height: var(--leading-tight);
+  color: var(--colour-ink-strong);
+}
+
+.admin-page-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.admin-content__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* Desktop: sidebar becomes a fixed-width left column. */
+@media (min-width: 720px) {
+  .admin-app {
+    flex-direction: row;
+  }
+
+  .admin-sidebar {
+    width: 240px;
+    flex: 0 0 240px;
+    border-bottom: 0;
+    border-right: 1px solid var(--colour-card-line);
+    padding: var(--space-6) var(--space-4);
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    overflow-y: auto;
+    gap: var(--space-6);
+  }
+
+  .admin-sidebar__nav {
+    flex-direction: column;
+    gap: 2px;
+    overflow-x: visible;
+  }
+
+  .admin-sidebar__link {
+    width: 100%;
+  }
+
+  .admin-sidebar__view-site {
+    /* Push to the bottom of the full-height column. */
+    margin-top: auto;
+  }
+
+  .admin-content {
+    padding: var(--space-6) var(--space-7) var(--space-8);
+  }
+}
+
+/* ── Admin lists ─────────────────────────────────────────────────────── */
+/*
+   Stations + locations: bordered list with dividers (.admin__list + .admin__row--simple).
+   Photos:               gap-separated flat cards (.admin-photo-list / .admin-photo-card).
+*/
+
+.admin__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--colour-card);
+  border: 1px solid var(--colour-card-line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.admin__row--simple {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--colour-card-line);
+}
+
+.admin__row--simple:last-child {
+  border-bottom: 0;
+}
+
+.admin__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin__row-link {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  align-items: center;
+  border-radius: var(--radius-sm);
+}
+
+.admin__row-link:hover .admin__station {
+  text-decoration: underline;
+}
+
+.admin__station {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-md);
+  color: var(--colour-ink-strong);
+}
+
+.admin__date {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--colour-ink-muted);
+}
+
+/* ── Photos: flat cards with bigger thumbnails and inline remove form ── */
+
+.admin-photo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin-photo-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: flex-start;
+  padding: var(--space-3) var(--space-4);
+  background: var(--colour-card);
+  border: 1px solid var(--colour-card-line);
+}
+
+.admin-photo-card__preview-btn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+  display: block;
+  flex: 0 0 96px;
+  line-height: 0;
+}
+
+.admin-photo-card__preview-btn:focus-visible {
+  outline: 2px solid var(--colour-deep);
+  outline-offset: 2px;
+}
+
+.admin-photo-card__thumb {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  display: block;
+}
+
+.admin-photo-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 180px;
+  padding-top: var(--space-1);
+}
+
+.admin-photo-card__station {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-md);
+  color: var(--colour-ink-strong);
+}
+
+.admin-photo-card__date {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--colour-ink-muted);
+}
+
+.admin-photo-card__remove {
+  display: flex;
+  align-items: flex-start;
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-top: var(--space-1);
+}
+
+.admin-photo-card__remove-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: var(--space-2);
+  background: var(--colour-signal);
+  color: var(--colour-paper);
+  border: none;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter var(--transition-fast);
+}
+
+.admin-photo-card__remove-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.admin-photo-card__remove-btn:hover {
+  filter: brightness(0.92);
+}
+
+/* ── Photo preview lightbox ─────────────────────────────────────────── */
+
+.admin-photo-dialog {
+  border: 0;
+  padding: 0;
+  background: var(--colour-card);
+  color: var(--colour-ink);
+  border-radius: var(--radius-md);
+  width: min(1200px, 92vw);
+  max-height: 92vh;
+  box-shadow: var(--shadow-card-strong);
+  overflow: hidden;
+}
+
+.admin-photo-dialog::backdrop {
+  background: var(--scrim-strong);
+}
+
+.admin-photo-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--colour-card-line);
+  background: var(--colour-paper);
+}
+
+.admin-photo-dialog__meta {
+  display: flex;
+  gap: var(--space-3);
+  align-items: baseline;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.admin-photo-dialog__station {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-md);
+  color: var(--colour-ink-strong);
+}
+
+.admin-photo-dialog__date {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--colour-ink-muted);
+}
+
+.admin-photo-dialog__close-form {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.admin-photo-dialog__close {
+  background: transparent;
+  border: 0;
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-xl);
+  line-height: 1;
+  color: var(--colour-ink-strong);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.admin-photo-dialog__close:hover {
+  background: var(--colour-surface-alt);
+}
+
+.admin-photo-dialog__close:focus-visible {
+  outline: 2px solid var(--colour-deep);
+  outline-offset: 2px;
+}
+
+.admin-photo-dialog__image {
+  display: block;
+  max-width: 100%;
+  max-height: calc(92vh - 64px);
+  height: auto;
+  background: var(--colour-ink-strong);
+  margin: 0 auto;
+}
+
+/* ── Quitar confirmation dialog ─────────────────────────────────────────── */
+
+.admin-confirm-dialog {
+  border: 0;
+  padding: var(--space-5);
+  background: var(--colour-card);
+  color: var(--colour-ink);
+  border-radius: var(--radius-md);
+  width: min(440px, 92vw);
+  box-shadow: var(--shadow-card-strong);
+  position: relative;
+}
+
+.admin-confirm-dialog::backdrop {
+  background: var(--scrim-strong);
+}
+
+.admin-confirm-dialog__close-form {
+  margin: 0;
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+}
+
+.admin-confirm-dialog__close {
+  background: transparent;
+  border: 0;
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-xl);
+  line-height: 1;
+  color: var(--colour-ink-strong);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.admin-confirm-dialog__close:hover {
+  background: var(--colour-surface-alt);
+}
+
+.admin-confirm-dialog__close:focus-visible {
+  outline: 2px solid var(--colour-deep);
+  outline-offset: 2px;
+}
+
+.admin-confirm-dialog__title {
+  margin: 0 var(--space-6) var(--space-4) 0;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  color: var(--colour-ink-strong);
+}
+
+.admin-confirm-dialog__body {
+  margin: 0 0 var(--space-5) 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--colour-ink-muted);
+}
+
+.admin-confirm-dialog__photo {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.admin-confirm-dialog__thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  display: block;
+  flex: 0 0 64px;
+  border-radius: var(--radius-sm);
+}
+
+.admin-confirm-dialog__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-confirm-dialog__station {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-md);
+  color: var(--colour-ink-strong);
+}
+
+.admin-confirm-dialog__date {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--colour-ink-muted);
+}
+
+.admin-confirm-dialog__reason {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-5);
+}
+
+.admin-confirm-dialog__reason-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--colour-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-confirm-dialog__reason-input {
+  font: inherit;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--colour-card-line);
+  border-radius: var(--radius-sm);
+  background: var(--colour-paper);
+  color: var(--colour-ink-strong);
+  min-height: 40px;
+}
+
+.admin-confirm-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.admin-confirm-dialog__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-4);
+  background: var(--colour-signal);
+  color: var(--colour-paper);
+  border: none;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter var(--transition-fast);
+}
+
+.admin-confirm-dialog__submit:hover {
+  filter: brightness(0.92);
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+
+.admin__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+  border: 1px solid var(--colour-deep);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+  cursor: pointer;
+  min-height: 40px;
+  transition: filter var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.admin__btn:hover {
+  filter: brightness(1.1);
+}
+
+.admin__btn--ghost {
+  background: transparent;
+  color: var(--colour-ink-strong);
+  border-color: var(--colour-card-line);
+}
+
+.admin__btn--ghost:hover {
+  background: var(--colour-surface-alt);
+  filter: none;
+}
+
+.admin__btn--danger {
+  background: var(--colour-signal);
+  border-color: var(--colour-signal);
+  color: var(--colour-paper);
+}
+
+.admin__btn--small {
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-3);
+  min-height: 36px;
+}
+
+.admin__btn--icon {
+  padding: var(--space-2);
+  min-width: 40px;
+  aspect-ratio: 1;
+}
+
+.admin__btn--icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.admin__btn--lead-icon {
+  gap: var(--space-2);
+}
+
+.admin__btn--lead-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Status badges ────────────────────────────────────────────────────── */
+
+.admin__status {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  margin-left: var(--space-2);
+  background: var(--colour-surface-alt);
+  color: var(--colour-ink-muted);
+}
+
+.admin__status--active   { background: var(--colour-deep);   color: var(--colour-accent); }
+.admin__status--draft    { background: var(--colour-surface-alt); color: var(--colour-ink); border: 1px solid var(--colour-card-line); }
+.admin__status--archived { background: var(--colour-card-line); color: var(--colour-ink-muted); }
+
+/* ── Inline notices ───────────────────────────────────────────────────── */
+
+.admin__error {
+  background: var(--colour-paper);
+  border-left: 3px solid var(--colour-signal);
+  color: var(--colour-ink-strong);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-4);
+}
+
+.admin__ok {
+  margin: 0;
+  color: var(--colour-mid);
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.admin-toast {
+  position: fixed;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: min(360px, calc(100vw - 2 * var(--space-4)));
+  padding: var(--space-3) var(--space-4);
+  background: var(--colour-deep);
+  color: var(--colour-paper);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card-strong);
+  font-size: var(--text-sm);
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.admin-toast--out {
+  opacity: 0;
+  transform: translateY(var(--space-3));
+}
+
+.admin-toast__msg {
+  flex: 1;
+}
+
+.admin-toast__close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  font-size: var(--text-lg);
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.admin-toast__close:hover,
+.admin-toast__close:focus-visible {
+  opacity: 1;
+}
+
+.admin__empty {
+  margin: 0;
+  font-family: var(--font-mono);
+  color: var(--colour-ink-muted);
+  text-align: center;
+  padding: var(--space-7) var(--space-4);
+  background: var(--colour-card);
+  border: 1px dashed var(--colour-card-line);
+  border-radius: var(--radius-md);
+}
+
+.admin__lede {
+  margin: 0 0 var(--space-4);
+  color: var(--colour-ink);
+  font-size: var(--text-md);
+}
+
+/* Settings: switch row — label/description left, toggle right. */
+.admin-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.admin-switch-row__text {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-switch-row__text .admin-form__hint {
+  margin-top: 2px;
+}
+
+/* Settings: accessible toggle switch. The real <input type=checkbox> is
+   visually hidden (still focusable, still posts with the form); the track +
+   knob are presentational. The slide honours the global reduced-motion reset. */
+.admin-switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  /* Pad out the hit target to ≥44px without growing the visual track. */
+  padding: var(--space-2);
+  margin: calc(-1 * var(--space-2));
+  cursor: pointer;
+}
+
+.admin-switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.admin-switch__track {
+  position: relative;
+  display: block;
+  width: 48px;
+  height: 28px;
+  background: var(--colour-card-line);
+  border-radius: var(--radius-pill);
+  transition: background-color var(--transition-base);
+}
+
+.admin-switch__track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: var(--colour-paper);
+  border-radius: 50%;
+  box-shadow: var(--shadow-card-soft);
+  transition: transform var(--transition-base);
+}
+
+.admin-switch input:checked + .admin-switch__track {
+  background: var(--colour-deep);
+}
+
+.admin-switch input:checked + .admin-switch__track::after {
+  transform: translateX(20px);
+}
+
+.admin-switch input:focus-visible + .admin-switch__track {
+  outline: 2px solid var(--colour-deep);
+  outline-offset: 2px;
+}
+
+/* Settings: informational note (e.g. SMTP not configured). */
+.admin-note {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--colour-ink);
+  background: var(--colour-surface-alt);
+  border-radius: var(--radius-sm);
+}
+
+/* Settings: read-only key/value list (env-controlled thresholds). */
+.admin-readonly-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-readonly-list__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--colour-card-line);
+}
+
+.admin-readonly-list__row:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.admin-readonly-list__row:last-child {
+  padding-bottom: 0;
+}
+
+.admin-readonly-list__label {
+  font-size: var(--text-sm);
+  color: var(--colour-ink);
+}
+
+.admin-readonly-list__value {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.admin-readonly-list__num {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-md);
+  color: var(--colour-ink-strong);
+  white-space: nowrap;
+}
+
+.admin-readonly-list__env {
+  padding: 2px var(--space-2);
+  background: var(--colour-surface-alt);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--colour-ink-muted);
+  border-radius: var(--radius-sm);
+}
+
+/* ── Pagination ───────────────────────────────────────────────────────── */
+
+.admin__pagination {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.admin__page-link {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--colour-ink-strong);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--colour-card-line);
+  border-radius: var(--radius-sm);
+  background: var(--colour-card);
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.admin__page-link:hover {
+  border-color: var(--colour-ink-strong);
+}
+
+.admin__page-link--disabled {
+  color: var(--colour-ink-muted);
+  background: transparent;
+  border-style: dashed;
+  cursor: default;
+}
+
+/* ── Forms ────────────────────────────────────────────────────────────── */
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.admin-form__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--colour-card);
+  border: 1px solid var(--colour-card-line);
+  border-radius: var(--radius-md);
+}
+
+.admin-form__section--detached {
+  margin-top: var(--space-5);
+}
+
+.admin-form__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.admin-form__section-header .admin-section-label {
+  margin: 0;
+}
+
+.admin-section-label {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--colour-ink-muted);
+}
+
+.admin-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-form__field--compact {
+  gap: 0;
+}
+
+.admin-form__label {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  color: var(--colour-ink-strong);
+}
+
+.admin-form__required {
+  margin-left: var(--space-1);
+  color: var(--colour-signal);
+  font-weight: 700;
+}
+
+.admin-form__field input[type="text"],
+.admin-form__field input[type="date"],
+.admin-form__field input[type="file"],
+.admin-form__field select,
+.admin-form__field textarea {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  padding: var(--space-3);
+  border: 1px solid var(--colour-card-line);
+  border-radius: var(--radius-sm);
+  background: var(--colour-paper);
+  color: var(--colour-ink-strong);
+  min-height: 44px;
+  width: 100%;
+}
+
+.admin-form__field textarea {
+  min-height: auto;
+  resize: vertical;
+  line-height: var(--leading-base);
+}
+
+.admin-form__field input:focus-visible,
+.admin-form__field select:focus-visible,
+.admin-form__field textarea:focus-visible {
+  outline: 2px solid var(--colour-deep);
+  outline-offset: 1px;
+  border-color: var(--colour-deep);
+}
+
+.admin-form__static {
+  margin: 0;
+  color: var(--colour-ink-strong);
+  font-size: var(--text-sm);
+}
+
+.admin-form__hint {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--colour-ink-muted);
+}
+
+[data-admin-autoslug] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.admin-form__field input[readonly] {
+  background: var(--colour-surface-alt);
+  color: var(--colour-ink-muted);
+  cursor: not-allowed;
+}
+
+.admin-form__slug-edit {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: inherit;
+  color: var(--colour-deep);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.admin-form__slug-edit:hover,
+.admin-form__slug-edit:focus-visible {
+  color: var(--colour-ink-strong);
+}
+
+.admin-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.admin-form__actions {
+  display: flex;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+/* ── Station form: two-column on desktop ─────────────────────────────── */
+
+.admin-station-form {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+.admin-station-form__main {
+  min-width: 0;
+}
+
+.admin-station-form__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .admin-station-form {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: var(--space-6);
+  }
+
+  .admin-station-form__side {
+    position: sticky;
+    top: var(--space-5);
+  }
+}
+
+.admin-rail-card {
+  background: var(--colour-card);
+  border: 1px solid var(--colour-card-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin-rail-card--danger {
+  border-color: rgba(184, 74, 58, 0.4);
+}
+
+.admin-rail-card__heading {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--colour-ink-muted);
+}
+
+.admin__readiness {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--colour-ink-strong);
+}
+
+.admin__readiness li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.admin__readiness-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--colour-surface-alt);
+  color: var(--colour-ink-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  flex: 0 0 20px;
+}
+
+.admin__readiness-mark.is-ok {
+  background: var(--colour-deep);
+  color: var(--colour-accent);
+}
+
+.admin__rail-note {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--colour-ink-muted);
+  line-height: var(--leading-base);
+}
+
+/* Rail photos grid. */
+.admin-rail-photos {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: var(--space-2);
+}
+
+.admin-rail-photos__item {
+  position: relative;
+  aspect-ratio: 1;
+}
+
+.admin-rail-photos__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+.admin-rail-photos__preview-btn {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+  line-height: 0;
+  border-radius: var(--radius-sm);
+}
+
+.admin-rail-photos__preview-btn:focus-visible {
+  outline: 2px solid var(--colour-deep);
+  outline-offset: 2px;
+}
+
+.admin-rail-photos__date {
+  position: absolute;
+  inset: auto 0 0 0;
+  background: var(--scrim-chip);
+  color: var(--colour-paper);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px var(--space-1);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  text-align: center;
+}
+
+.admin-rail-photos__remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--colour-signal);
+  color: var(--colour-paper);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.admin-rail-photos__item:hover .admin-rail-photos__remove,
+.admin-rail-photos__item:focus-within .admin-rail-photos__remove {
+  opacity: 1;
+}
+
+.admin-rail-upload {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--colour-card-line);
+}
+
+.admin-rail-upload__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-rail-upload__field input[type="file"] {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  padding: var(--space-2);
+  border: 1px solid var(--colour-card-line);
+  border-radius: var(--radius-sm);
+  background: var(--colour-paper);
+}

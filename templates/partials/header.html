@@ -1,0 +1,42 @@
+{# Fixed site header — "abundant brooks".
+   - Off-white nav bar with REFRAME logo (left) + Locations / Setup links + language toggle (right).
+   - The wavy off-white SVG mask is opt-in via `show_header_mask`: the homepage
+     sets it so the chrome hands off into the hero, and other pages get a clean
+     horizontal bar. #}
+
+{% set _setup_href = '/' ~ lang ~ '/' ~ ('acoger' if lang == 'es' else 'host') %}
+{% set _locations_href = '/' ~ lang ~ '/' ~ ('lugares' if lang == 'es' else 'locations') %}
+{% set _show_mask = show_header_mask is defined and show_header_mask %}
+
+<header class="site-header{% if not _show_mask %} site-header--flat{% endif %}" data-site-header>
+  <div class="site-header__bar">
+    <a class="site-header__logo" href="/{{ lang }}/" aria-label="{{ site.name }}">
+      {% include "partials/logo.html" %}
+      <span class="site-header__wordmark">{{ site.name }}</span>
+    </a>
+
+    <nav class="site-nav" aria-label="Primary">
+      <a class="site-nav__link" href="{{ _locations_href }}">{{ t('nav.locations', lang) }}</a>
+      {% if submissions_enabled %}
+      <a class="site-nav__link site-nav__link--cta" href="{{ _setup_href }}">{{ t('nav.setup', lang) }}</a>
+      {% endif %}
+    </nav>
+  </div>
+
+  {% if _show_mask %}
+  {# Wavy bottom-mask SVG — inlined so it inherits the off-white fill from CSS
+     (currentColor on the path) and avoids an extra HTTP request. #}
+  <svg
+    class="site-header__mask"
+    viewBox="0 0 1512 98"
+    preserveAspectRatio="none"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path
+      fill="currentColor"
+      d="M1512 56L1480.5 66L1449 51L1417.5 58L1386 44L1354.5 54L1323 50L1291.5 64L1260 48L1228.5 58L1197 70L1165.5 62L1134 78L1102.5 56L1071 46L1039.5 34L1008 40L976.5 28L945 36L913.5 26L882 30L850.5 20L819 8L787.5 14L756 0L724.5 6L693 18L661.5 26L630 44L598.5 52L567 74L535.5 60L504 66L472.5 50L441 38L409.5 48L378 30L346.5 36L315 50L283.5 42L252 58L220.5 50L189 64L157.5 56L126 74L94.5 66L63 80L31.5 88L0 98V-64L1512 -64V56Z"
+    />
+  </svg>
+  {% endif %}
+</header>

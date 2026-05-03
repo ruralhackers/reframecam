@@ -1,0 +1,69 @@
+{% extends "admin/layout.html" %}
+
+{% block admin_page_title %}Lugares{% endblock %}
+
+{% block admin_page_actions %}
+  <a class="admin__btn admin__btn--lead-icon" href="/admin/{{ admin_slug }}/locations/new">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5 12h14"/>
+      <path d="M12 5v14"/>
+    </svg>
+    Nuevo lugar
+  </a>
+{% endblock %}
+
+{% block admin_content %}
+  {% if notice == "saved" %}
+    <div class="admin-toast" role="status" data-admin-toast>
+      <span class="admin-toast__msg">Lugar guardado.</span>
+      <button type="button" class="admin-toast__close" aria-label="Cerrar">&times;</button>
+    </div>
+  {% elif notice == "deleted" %}
+    <div class="admin-toast" role="status" data-admin-toast>
+      <span class="admin-toast__msg">Lugar eliminado.</span>
+      <button type="button" class="admin-toast__close" aria-label="Cerrar">&times;</button>
+    </div>
+  {% endif %}
+  {% if view.groups %}
+    {% for group in view.groups %}
+      <h2 class="admin-section-label">{{ group.label }}</h2>
+      <ul class="admin__list" role="list">
+        {% for loc in group.locations %}
+          <li class="admin__row admin__row--simple">
+            <a class="admin__row-link" href="{{ loc.edit_href }}">
+              <span class="admin__meta">
+                <span class="admin__station">{{ loc.name }}</span>
+                <span class="admin__date">{{ loc.country_label }} · {{ loc.station_count }} estación(es)</span>
+              </span>
+            </a>
+            <a class="admin__btn admin__btn--ghost admin__btn--icon" href="{{ loc.edit_href }}" aria-label="Editar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                <path d="m15 5 4 4"/>
+              </svg>
+            </a>
+            {% if loc.can_delete %}
+              <form method="post" action="{{ loc.delete_href }}"
+                    data-admin-confirm
+                    data-confirm-title="¿Eliminar este lugar?"
+                    data-confirm-body="Este lugar no tiene estaciones. Esta acción no se puede deshacer."
+                    data-confirm-label="Sí, eliminar">
+                <button type="submit" class="admin__btn admin__btn--danger admin__btn--icon" aria-label="Eliminar">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 6h18"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <path d="M10 11v6"/>
+                    <path d="M14 11v6"/>
+                  </svg>
+                </button>
+              </form>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+    {% include "admin/_action_confirm_dialog.html" %}
+  {% else %}
+    <p class="admin__empty">Aún no hay lugares.</p>
+  {% endif %}
+{% endblock %}

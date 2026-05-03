@@ -1,0 +1,21 @@
+# ReFrame site configuration — branding + languages (the fork's text identity).
+#
+# Checked in for the default Anceu build. A fork rebrands by editing this file
+# (and editing tokens in static/css/tokens.css + static/branding/). Loaded once at
+# startup from {DATA_ROOT}/site.toml; missing file falls back to defaults.
+
+[site]
+# Project name — shown in the header wordmark and page titles.
+name = "ReFrame"
+
+# Footer attribution line, per language.
+[site.footer]
+attribution_en = "Made with ❤️ by <a href=\"https://ruralhackers.com\" target=\"_blank\" rel=\"noopener\">Rural Hackers</a>"
+attribution_es = "Hecho con ❤️ por <a href=\"https://ruralhackers.com\" target=\"_blank\" rel=\"noopener\">Rural Hackers</a>"
+
+[languages]
+# Languages offered to visitors. The first entry is the default (the bare
+# root `/` redirects to it). Drop "es" for an English-only fork — the
+# language toggle then disappears.
+enabled = ["en", "es"]
+

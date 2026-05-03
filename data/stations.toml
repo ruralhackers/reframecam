@@ -1,0 +1,86 @@
+# ReFrame seed configuration — locations and stations.
+#
+# Loaded by `python -m app.seed`. Idempotent — re-running upserts. This file is
+# a bootstrap / fork convenience: once a deployment is live, locations and
+# stations are managed through the admin UI.
+#
+# Stand-in story copy and coordinates marked below —
+# Rural Hackers replace before launch.
+
+# --- Locations -------------------------------------------------------------
+# A location is the place a set of stations sits in. The /locations page
+# groups by country, then by location.
+
+[[locations]]
+slug = "anceu"
+name = "Anceu, Galicia"
+country = "ES"  # ISO 3166-1 alpha-2; see `app/countries.py` for the full list
+
+[[locations]]
+slug = "ponte-caldelas"
+name = "Ponte Caldelas, Galicia"
+country = "ES"
+
+# --- Stations --------------------------------------------------------------
+# Each station belongs to a location. `latitude` / `longitude` place its
+# marker on the /locations map. `status`: draft | active | archived.
+
+[[stations]]
+slug = "bosque-comestible"
+location = "anceu"
+name_es = "Bosque Comestible"
+name_en = "Anceu Food Forest"
+latitude = 42.351178   # stand-in; Rural Hackers to confirm
+longitude = -8.466424  # stand-in; Rural Hackers to confirm
+status = "active"
+# stand-in story; Rural Hackers to revise
+story_es = """
+El bosque comestible de Anceu es un proyecto de regeneración del paisaje plantado en \
+colaboración con Anceu Coliving. Cada foto desde este soporte registra cómo crecen los \
+árboles frutales, los arbustos y la vida del suelo a lo largo de las estaciones.
+"""
+story_en = """
+The Anceu Food Forest is a landscape-regeneration project planted alongside Anceu \
+Coliving. Each photo from this holder records how the fruit trees, shrubs, and soil life \
+grow into one another across the seasons.
+"""
+
+[[stations]]
+slug = "casa-do-pobo"
+location = "anceu"
+name_es = "Casa do Pobo de Anceu"
+name_en = "Casa do Pobo de Anceu"
+latitude = 42.361249   # stand-in; Rural Hackers to confirm
+longitude = -8.466103 # stand-in; Rural Hackers to confirm
+status = "active"
+# stand-in story; Rural Hackers to revise
+story_es = """
+La Casa do Pobo es el lugar de encuentro del pueblo de Anceu. Esta vista mira hacia la \
+plaza donde Rural Hackers organiza talleres y reuniones. Las fotos cuentan el ritmo de la \
+vida del pueblo a lo largo del año.
+"""
+story_en = """
+Casa do Pobo is the meeting place of the village of Anceu. This view looks across the \
+square where Rural Hackers run gatherings and workshops. The photos record the rhythm of \
+village life across the year.
+"""
+
+[[stations]]
+slug = "ies-ponte-caldelas"
+location = "ponte-caldelas"
+name_es = "IES Ponte Caldelas"
+name_en = "IES Ponte Caldelas"
+latitude = 42.3897   # stand-in; Rural Hackers to confirm
+longitude = -8.5031  # stand-in; Rural Hackers to confirm
+status = "active"
+# stand-in story; Rural Hackers to revise
+story_es = """
+El IES Ponte Caldelas es el instituto de la villa. Profesores, alumnos y familias \
+contribuyen a una vista compartida del entorno escolar — los árboles del patio, los \
+cambios estacionales y los ritmos del curso.
+"""
+story_en = """
+IES Ponte Caldelas is the local secondary school. Teachers, students, and families \
+contribute to a shared view of the school grounds — the courtyard trees, the seasonal \
+shifts, and the rhythms of the school year.
+"""

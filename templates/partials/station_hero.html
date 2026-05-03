@@ -1,0 +1,17 @@
+{# Station hero — "abundant brooks" treatment.
+   H1 + mono-caps meta line ("ANCEU • GALICIA, SPAIN") on top, then the
+   timelapse viewer. The viewer model itself handles the empty / single /
+   minimal / full states, so the hero always renders a viewer. Expects
+   `station` from views.station_view(). #}
+<section class="station-hero" aria-label="{{ t('station.hero.aria', lang) }}">
+  <div class="station-hero__inner">
+    <h1 class="station-hero__name">{{ station.name }}</h1>
+    {% if station.hero_meta %}
+      <p class="station-hero__meta">{{ station.hero_meta }}</p>
+    {% endif %}
+
+    {% with viewer = station.viewer %}
+      {% include "partials/viewer.html" %}
+    {% endwith %}
+  </div>
+</section>

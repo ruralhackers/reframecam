@@ -1,0 +1,281 @@
+{% extends "admin/layout.html" %}
+
+{% set s = view.station %}
+
+{% block admin_page_title %}
+  {% if view.is_edit %}{{ s.name_en or s.slug }}{% else %}Nueva estación{% endif %}
+{% endblock %}
+
+{% block admin_page_back %}
+  {% if view.is_edit %}
+    <a class="admin__btn admin__btn--ghost admin__btn--icon"
+       href="{% if from_location %}/admin/{{ admin_slug }}/locations/{{ from_location }}{% else %}/admin/{{ admin_slug }}/stations{% endif %}"
+       aria-label="{% if from_location %}Volver al lugar{% else %}Volver a estaciones{% endif %}"
+       data-admin-back>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m12 19-7-7 7-7"/>
+        <path d="M19 12H5"/>
+      </svg>
+    </a>
+  {% endif %}
+{% endblock %}
+
+{% block admin_page_actions %}
+  {% if view.is_edit %}
+    <button type="submit" form="station-form" class="admin__btn">Guardar</button>
+  {% endif %}
+{% endblock %}
+
+{% block admin_content %}
+  {% if notice == "created" %}
+    <div class="admin-toast" role="status" data-admin-toast>
+      <span class="admin-toast__msg">Estación creada.</span>
+      <button type="button" class="admin-toast__close" aria-label="Cerrar">&times;</button>
+    </div>
+  {% elif notice == "removed" %}
+    <div class="admin-toast" role="status" data-admin-toast>
+      <span class="admin-toast__msg">Foto eliminada.</span>
+      <button type="button" class="admin-toast__close" aria-label="Cerrar">&times;</button>
+    </div>
+  {% elif notice == "removed_draft" %}
+    <div class="admin-toast" role="status" data-admin-toast>
+      <span class="admin-toast__msg">Foto eliminada. La estación pasó a borrador al quedarse sin fotos.</span>
+      <button type="button" class="admin-toast__close" aria-label="Cerrar">&times;</button>
+    </div>
+  {% endif %}
+  {% if error == "invalid" %}
+    <p class="admin__error">Faltan campos obligatorios o el slug no es válido.</p>
+  {% elif error == "duplicate" %}
+    <p class="admin__error">Ya existe una estación con ese slug.</p>
+  {% elif error == "location" %}
+    <p class="admin__error">El lugar seleccionado no existe.</p>
+  {% endif %}
+  {% if notice == "forced_draft" %}
+    <p class="admin__error">
+      La estación no puede activarse sin al menos una foto. Se ha
+      guardado como borrador.
+    </p>
+  {% endif %}
+  {% if notice and notice.startswith("photo_") %}
+    <p class="admin__error">
+      No se pudo añadir la foto ({{ notice[6:] }}). Inténtalo de nuevo.
+    </p>
+  {% endif %}
+
+  <div class="admin-station-form">
+    <form
+      id="station-form"
+      class="admin-form admin-station-form__main"
+      method="post"
+      action="{% if view.is_edit %}/admin/{{ admin_slug }}/stations/{{ s.slug }}{% else %}/admin/{{ admin_slug }}/stations/new{% endif %}"
+      {% if view.is_edit %}data-admin-dirty-warn{% endif %}
+    >
+      {% if from_location %}<input type="hidden" name="from_location" value="{{ from_location }}" />{% endif %}
+      <section class="admin-form__section">
+        <h2 class="admin-section-label">Identidad</h2>
+
+        {% if not view.is_edit %}
+          <div data-admin-autoslug>
+            <label class="admin-form__field">
+              <span class="admin-form__label">Nombre (EN)<span class="admin-form__required" aria-hidden="true">*</span></span>
+              <input type="text" name="name_en" required maxlength="200" data-autoslug-source />
+            </label>
+
+            <label class="admin-form__field" data-autoslug-target-field>
+              <span class="admin-form__label">Slug<span class="admin-form__required" aria-hidden="true">*</span></span>
+              <input type="text" name="station_slug" required pattern="[a-z0-9\-]+"
+                     placeholder="estacion-nueva" data-autoslug-target />
+              <span class="admin-form__hint">
+                Minúsculas y guiones. No se podrá cambiar después.
+              </span>
+            </label>
+          </div>
+        {% else %}
+          <p class="admin-form__static">
+            <strong>Slug:</strong> {{ s.slug }}
+            <span class="admin-form__hint">
+              El slug está fijado: cambiarlo rompería los códigos QR impresos.
+            </span>
+          </p>
+
+          <label class="admin-form__field">
+            <span class="admin-form__label">Nombre (EN)<span class="admin-form__required" aria-hidden="true">*</span></span>
+            <input type="text" name="name_en" required maxlength="200"
+                   value="{{ s.name_en }}" />
+          </label>
+        {% endif %}
+
+        <label class="admin-form__field">
+          <span class="admin-form__label">Nombre (ES) — opcional</span>
+          <input type="text" name="name_es" maxlength="200"
+                 value="{{ s.name_es if view.is_edit else '' }}" />
+        </label>
+      </section>
+
+      <section class="admin-form__section">
+        <h2 class="admin-section-label">Lugar</h2>
+
+        <label class="admin-form__field">
+          <span class="admin-form__label">Lugar<span class="admin-form__required" aria-hidden="true">*</span></span>
+          <select name="location_slug" required>
+            {% for loc in view.locations %}
+              <option value="{{ loc.slug }}"
+                {% if view.is_edit and s.location_slug == loc.slug %}selected{% elif not view.is_edit and view.selected_location == loc.slug %}selected{% endif %}>
+                {{ loc.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <div class="admin-form__row">
+          <label class="admin-form__field">
+            <span class="admin-form__label">Latitud</span>
+            <input type="text" name="latitude" inputmode="decimal"
+                   value="{{ s.latitude if view.is_edit and s.latitude is not none else '' }}" />
+          </label>
+          <label class="admin-form__field">
+            <span class="admin-form__label">Longitud</span>
+            <input type="text" name="longitude" inputmode="decimal"
+                   value="{{ s.longitude if view.is_edit and s.longitude is not none else '' }}" />
+          </label>
+        </div>
+      </section>
+
+      <section class="admin-form__section">
+        <h2 class="admin-section-label">Historia</h2>
+
+        <label class="admin-form__field">
+          <span class="admin-form__label">Historia (EN)<span class="admin-form__required" aria-hidden="true">*</span></span>
+          <textarea name="story_en" rows="5" required>{{ s.story_en if view.is_edit else '' }}</textarea>
+        </label>
+
+        <label class="admin-form__field">
+          <span class="admin-form__label">Historia (ES) — opcional</span>
+          <textarea name="story_es" rows="5">{{ s.story_es if view.is_edit else '' }}</textarea>
+        </label>
+      </section>
+
+      {% if view.is_edit %}
+        {# Status lives inside the form so it submits with everything else,
+           but is rendered visually in the right rail via CSS positioning of
+           the side panel. The select itself sits here to keep markup valid. #}
+        <input type="hidden" id="station-status-mirror" />
+      {% else %}
+        <div class="admin-form__actions">
+          <button type="submit" class="admin__btn">Crear</button>
+          <a class="admin__btn admin__btn--ghost" href="{% if from_location %}/admin/{{ admin_slug }}/locations/{{ from_location }}{% else %}/admin/{{ admin_slug }}/stations{% endif %}">Cancelar</a>
+        </div>
+      {% endif %}
+    </form>
+
+    {% if view.is_edit %}
+      <aside class="admin-station-form__side" aria-label="Estado y acciones">
+        <section class="admin-rail-card">
+          <h2 class="admin-rail-card__heading">Estado</h2>
+          <label class="admin-form__field admin-form__field--compact">
+            <select name="status" form="station-form">
+              {% for st in view.statuses %}
+                <option value="{{ st.value }}" {% if s.status == st.value %}selected{% endif %}>{{ st.label }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </section>
+
+        <section class="admin-rail-card">
+          <h2 class="admin-rail-card__heading">Preparación</h2>
+          <ul class="admin__readiness">
+            <li>
+              <span class="admin__readiness-mark{% if view.readiness.photo_count >= 1 %} is-ok{% endif %}"
+                    aria-hidden="true">{% if view.readiness.photo_count >= 1 %}✓{% else %}✗{% endif %}</span>
+              Fotos: {{ view.readiness.photo_count }} (mínimo 1)
+            </li>
+          </ul>
+          {% if view.readiness.ready %}
+            <p class="admin__ok">Lista para activarse.</p>
+          {% else %}
+            <p class="admin__rail-note">Aún no puede activarse.</p>
+          {% endif %}
+        </section>
+
+        <section class="admin-rail-card">
+          <h2 class="admin-rail-card__heading">Fotos ({{ view.photos|length }})</h2>
+          {% if view.photos %}
+            <ul class="admin-rail-photos" role="list">
+              {% for p in view.photos %}
+                <li class="admin-rail-photos__item">
+                  <button
+                    type="button"
+                    class="admin-rail-photos__preview-btn"
+                    data-photo-preview
+                    data-viewer-url="{{ p.viewer_url }}"
+                    data-viewer-width="{{ p.viewer_width }}"
+                    data-viewer-height="{{ p.viewer_height }}"
+                    data-station-name="{{ p.station_name }}"
+                    data-captured-at="{{ p.captured_at }}"
+                    aria-label="Ver foto a tamaño completo"
+                  >
+                    <img src="{{ p.thumb_url }}" alt="" loading="lazy" width="64" height="64" />
+                  </button>
+                  <span class="admin-rail-photos__date">{{ p.captured_at }}</span>
+                  <form method="post"
+                        action="/admin/{{ admin_slug }}/photo/{{ p.id }}/remove"
+                        data-remove-form
+                        data-confirm-message="¿Quitar esta foto del timelapse?">
+                    <input type="hidden" name="redirect_to" value="/admin/{{ admin_slug }}/stations/{{ s.slug }}" />
+                    <button type="submit" class="admin-rail-photos__remove" aria-label="Quitar">×</button>
+                  </form>
+                </li>
+              {% endfor %}
+            </ul>
+            {% include "admin/_remove_confirm_dialog.html" %}
+          {% else %}
+            <p class="admin__rail-note">Sin fotos todavía.</p>
+          {% endif %}
+          <form class="admin-rail-upload" method="post" enctype="multipart/form-data"
+                action="/admin/{{ admin_slug }}/stations/{{ s.slug }}/photos">
+            <label class="admin-rail-upload__field">
+              <span class="admin-form__label">Añadir foto</span>
+              <input type="file" name="photo" accept="image/*" required />
+            </label>
+            <button type="submit" class="admin__btn admin__btn--small">Añadir</button>
+          </form>
+        </section>
+
+        <section class="admin-rail-card admin-rail-card--danger">
+          <h2 class="admin-rail-card__heading">Zona de peligro</h2>
+          <p class="admin__rail-note">
+            Archivar oculta la estación de los listados públicos.
+            Su página sigue accesible por URL.
+          </p>
+          <form method="post" action="/admin/{{ admin_slug }}/stations/{{ s.slug }}/archive"
+                data-admin-confirm
+                data-confirm-title="¿Archivar esta estación?"
+                data-confirm-body="No se elimina nada: solo cambia el estado a archivada y se oculta de los listados públicos. Su página sigue accesible por URL."
+                data-confirm-label="Sí, archivar">
+            <button type="submit" class="admin__btn admin__btn--danger admin__btn--small">Archivar estación</button>
+          </form>
+        </section>
+      </aside>
+    {% endif %}
+  </div>
+
+  {% if view.is_edit %}
+    {% include "admin/_action_confirm_dialog.html" %}
+  {% endif %}
+
+  {% if view.photos %}
+    <dialog id="admin-photo-preview" class="admin-photo-dialog" aria-label="Vista previa de foto">
+      <header class="admin-photo-dialog__header">
+        <div class="admin-photo-dialog__meta">
+          <span class="admin-photo-dialog__station" data-dialog-station></span>
+          <span class="admin-photo-dialog__date" data-dialog-date></span>
+        </div>
+        <form method="dialog" class="admin-photo-dialog__close-form">
+          <button type="submit" class="admin-photo-dialog__close" aria-label="Cerrar">×</button>
+        </form>
+      </header>
+      <img class="admin-photo-dialog__image" data-dialog-image alt="" />
+    </dialog>
+  {% endif %}
+{% endblock %}
+

@@ -1,0 +1,42 @@
+# ReFrame reverse proxy.
+#
+# For a real domain, Caddy obtains and renews a Let's Encrypt certificate
+# automatically — just set DOMAIN in the compose .env file. With the default
+# `localhost` it serves a local self-signed certificate, which is enough for
+# `docker compose up` on a laptop.
+
+{$DOMAIN:localhost} {
+	encode gzip
+
+	# /api/upload accepts multipart bodies; the client caps the JPEG well
+	# under this, but leave generous headroom.
+	request_body {
+		max_size 32MB
+	}
+
+	# Security headers applied to every response. The CSP is tuned to this
+	# app's first-party-only asset model:
+	#   - script-src 'self'      — all JS is self-hosted files; no inline
+	#                              executable <script> (the inline JSON payloads
+	#                              are type="application/json" data blocks, which
+	#                              CSP does not treat as scripts).
+	#   - style-src adds 'unsafe-inline' — base.html inlines critical CSS and a
+	#                              few templates use style="" attributes.
+	#   - img-src allows data: and the OpenStreetMap tile origins — the only
+	#                              accepted runtime third party, and only the
+	#                              /locations map actually loads from it.
+	#   - media-src 'self'       — the bundled hero video.
+	# frame-ancestors + X-Frame-Options block clickjacking; HSTS only bites over
+	# HTTPS (Caddy serves TLS by default, self-signed on the localhost default).
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; font-src 'self'; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		# Don't advertise the server software.
+		-Server
+	}
+
+	reverse_proxy app:8000
+}

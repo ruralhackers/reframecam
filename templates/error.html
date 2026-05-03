@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{# Themed 404 / 500 surface (§10.4). Full-bleed deep-green band that flexes
+   to fill the viewport; content is centred via the existing sticky-footer
+   chain (body → main → .error all flex). #}
+
+{% block main %}
+  <section class="error">
+    <div class="error__inner">
+      <p class="section-label">
+        <span class="section-label__rule section-label__rule--light" aria-hidden="true"></span>
+        <span class="section-label__text">{{ error_label }}</span>
+      </p>
+      <p class="error__code" aria-hidden="true">{{ status_code }}</p>
+      <h1 class="error__heading">{{ error_heading }}</h1>
+      <p class="error__body">{{ error_body }}</p>
+      <a class="btn-outline btn-outline--light" href="/{{ lang }}/">
+        <span class="btn-outline__label">{{ error_cta }}</span>
+        <svg viewBox="0 0 9 7" width="9" height="7" aria-hidden="true" focusable="false">
+          <path fill="currentColor" d="M5.5 0l3.5 3.5L5.5 7V4H0V3h5.5z" />
+        </svg>
+      </a>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="{{ t('html.lang', lang) }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#163528" />
+    <title>{% block title %}{{ page_title or t('page.title', lang) }}{% endblock %}</title>
+
+    {# Search-engine + share-preview meta (spec §9.8, §10.4). The OG image
+       is the latest viewer-size frame on station pages and a chosen default
+       on the landing / error pages; routes pass `og_image_url` either way. #}
+    {% if meta_description %}
+      <meta name="description" content="{{ meta_description }}" />
+    {% endif %}
+    {% if canonical_url %}
+      <link rel="canonical" href="{{ canonical_url }}" />
+    {% endif %}
+    <meta property="og:site_name" content="{{ site.name }}" />
+    <meta property="og:title" content="{{ og_title or page_title or t('page.title', lang) }}" />
+    {% if meta_description %}
+      <meta property="og:description" content="{{ meta_description }}" />
+    {% endif %}
+    <meta property="og:type" content="{{ og_type or 'website' }}" />
+    <meta property="og:locale" content="{{ t('meta.og_locale', lang) }}" />
+    {% if canonical_url %}
+      <meta property="og:url" content="{{ canonical_url }}" />
+    {% endif %}
+    {% if og_image_url %}
+      <meta property="og:image" content="{{ og_image_url }}" />
+      <meta property="og:image:width" content="{{ og_image_width or 1200 }}" />
+      <meta property="og:image:height" content="{{ og_image_height or 630 }}" />
+      {% if og_image_alt %}
+        <meta property="og:image:alt" content="{{ og_image_alt }}" />
+      {% endif %}
+      <meta name="twitter:card" content="summary_large_image" />
+    {% else %}
+      <meta name="twitter:card" content="summary" />
+    {% endif %}
+
+    {# Favicon set (§10.4). SVG for modern browsers (vector, theme-color-aware),
+       PNG/ICO fallbacks for older browsers, apple-touch-icon for iOS home-screen.
+       These assets live under /static/branding — a fork's swap point. #}
+    <link rel="icon" type="image/svg+xml" href="/static/branding/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/branding/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/branding/apple-touch-icon.png" />
+    <link rel="alternate icon" href="/static/branding/favicon.ico" />
+
+    {# Critical CSS inlined per spec §8.3: tokens + above-the-fold layout.
+       Mirrors the new "abundant brooks" token set in static/css/tokens.css —
+       both must stay in sync (no build step). #}
+    <style>
+      :root {
+        --colour-ink: #414844;
+        --colour-ink-strong: #0B211A;
+        --colour-paper: #F9F6F7;
+        --colour-surface: #E5E8E4;
+        --colour-surface-alt: #EEEEEE;
+        --colour-card: #FFFFFF;
+        --colour-card-line: #E2E3E1;
+        --colour-deep: #163528;
+        --colour-mid: #245A4A;
+        --colour-accent: #C7EBD7;
+        --colour-signal: #B84A3A;
+        --colour-ink-muted: #5A5A5A;
+        --colour-ink-strong-rgb: 11, 33, 26;
+        --font-display: "Anton", sans-serif;
+        --font-body: "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+        --font-script: "Permanent Marker", "Be Vietnam Pro", cursive;
+        --text-xs: 13px;
+        --text-sm: 15px;
+        --text-md: 17px;
+        --text-lg: 21px;
+        --text-xl: 24px;
+        --text-display-sm: 28px;
+        --text-display-md: 48px;
+        --text-display-lg: 120px;
+        --text-mark: 200px;
+        --leading-tight: 1.05;
+        --leading-snug: 1.2;
+        --leading-base: 1.6;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 24px;
+        --space-6: 32px;
+        --space-7: 48px;
+        --space-8: 64px;
+        --space-9: 80px;
+        --space-10: 104px;
+        --space-11: 160px;
+        --radius-sm: 4px;
+        --radius-md: 8px;
+        --radius-pill: 32px;
+        --transition-fast: 120ms ease-out;
+        --transition-base: 240ms ease-out;
+        --shadow-card-soft: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-card-strong: 2px 2px 4px rgba(var(--colour-ink-strong-rgb), 0.20);
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: var(--colour-surface);
+        color: var(--colour-ink);
+        font-family: var(--font-body);
+        font-size: var(--text-md);
+        line-height: var(--leading-base);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      main { flex: 1 0 auto; }
+    </style>
+
+    {# tokens.css is the single canonical token set (the <style> block above
+       mirrors its critical subset); app.css consumes the tokens. #}
+    <link rel="stylesheet" href="/static/css/tokens.css" />
+    <link rel="stylesheet" href="/static/css/app.css" />
+
+    {# Site-wide sticky-nav slide behaviour. #}
+    <script defer src="/static/js/nav.js"></script>
+
+    {# Per-page deferred scripts (e.g. /static/js/viewer.js on station pages). #}
+    {% block scripts %}{% endblock %}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{{ t('header.skip_to_main', lang) }}</a>
+
+    {% block site_header %}{% include "partials/header.html" %}{% endblock %}
+
+    <main id="main" tabindex="-1">
+      {% block main %}{% endblock %}
+    </main>
+
+    {% block site_footer %}{% include "partials/footer.html" %}{% endblock %}
+  </body>
+</html>
