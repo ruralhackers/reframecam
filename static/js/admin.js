@@ -288,6 +288,55 @@
       });
     });
 
+  // ── Coordinate inputs: strip anything that isn't a decimal number ───────
+  // The Latitud / Longitud fields accept only characters valid in a signed
+  // decimal — digits, a single dot, and a leading minus. We sanitise on every
+  // input event, which also fires after a paste, so dodgy pastes and typos are
+  // stripped live. In-progress values like "-", "." or "-12." are allowed
+  // through (not yet valid floats but must be typeable); the server's float()
+  // is the final arbiter.
+
+  function sanitizeCoord(value) {
+    var cleaned = value.replace(/[^0-9.\-]/g, "");
+    var negative = cleaned.charAt(0) === "-";
+    cleaned = cleaned.replace(/-/g, "");
+    var dot = cleaned.indexOf(".");
+    if (dot !== -1) {
+      cleaned =
+        cleaned.slice(0, dot + 1) + cleaned.slice(dot + 1).replace(/\./g, "");
+    }
+    return (negative ? "-" : "") + cleaned;
+  }
+
+  // Count how many kept (sanitisable) characters precede `upto`, so the caret
+  // can be restored to the same logical spot after disallowed chars are dropped.
+  function keptBefore(value, upto) {
+    var n = 0;
+    for (var i = 0; i < upto; i++) {
+      if (/[0-9.\-]/.test(value.charAt(i))) {
+        n++;
+      }
+    }
+    return n;
+  }
+
+  document.querySelectorAll("[data-coord-input]").forEach(function (input) {
+    input.addEventListener("input", function () {
+      var before = input.value;
+      var after = sanitizeCoord(before);
+      if (after === before) {
+        return;
+      }
+      var caret = keptBefore(before, input.selectionStart);
+      input.value = after;
+      try {
+        input.setSelectionRange(caret, caret);
+      } catch (e) {
+        /* some input types reject setSelectionRange; ignore */
+      }
+    });
+  });
+
   // ── Toast ──────────────────────────────────────────────────────────────
   // A `data-admin-toast` element (rendered server-side from a ?notice= param)
   // fades in via CSS, auto-dismisses after a few seconds, and can be closed

@@ -130,12 +130,12 @@
         <div class="admin-form__row">
           <label class="admin-form__field">
             <span class="admin-form__label">Latitud</span>
-            <input type="text" name="latitude" inputmode="decimal"
+            <input type="text" name="latitude" inputmode="decimal" data-coord-input
                    value="{{ s.latitude if view.is_edit and s.latitude is not none else '' }}" />
           </label>
           <label class="admin-form__field">
             <span class="admin-form__label">Longitud</span>
-            <input type="text" name="longitude" inputmode="decimal"
+            <input type="text" name="longitude" inputmode="decimal" data-coord-input
                    value="{{ s.longitude if view.is_edit and s.longitude is not none else '' }}" />
           </label>
         </div>
