@@ -108,11 +108,15 @@ STRINGS: dict[str, dict[str, str]] = {
         "landing.intro.label": "EL PROYECTO",
         "landing.intro.heading": "¿Qué es ReFrame?",
         "landing.intro.p1": (
-            "ReFrame es un proyecto de fotografía comunitaria de "
+            "ReFrame es una forma libre y de código abierto para que una "
+            "comunidad fotografíe cómo cambia su propio paisaje con el tiempo."
+        ),
+        "landing.intro.p1b": (
+            "Creado por "
             "<a href=\"https://ruralhackers.com\" target=\"_blank\" rel=\"noopener\">Rural Hackers</a> "
-            "en Anceu, Galicia. Usamos la fotografía repetida "
-            "para registrar cómo cambian los lugares rurales: la misma "
-            "vista, tomada por muchas personas, durante muchos años."
+            "de Anceu, Galicia, convierte la misma vista —tomada por muchas "
+            "personas, durante muchos años— en un timelapse compartido al que "
+            "cualquiera puede contribuir."
         ),
         "landing.intro.p2": (
             "Cada estación es un soporte de móvil impreso en 3D, instalado "
@@ -145,12 +149,14 @@ STRINGS: dict[str, dict[str, str]] = {
         "landing.setup.label": "LA SEMILLA",
         "landing.setup.heading": "Lleva ReFrame a tu comunidad.",
         "landing.setup.p1": (
-            "El diseño del soporte, el software y este sitio son de código "
-            "abierto. Cualquier comunidad puede montar su propia estación."
+            "Todo lo que hay detrás de ReFrame es de código abierto: el "
+            "soporte de móvil impreso en 3D y la aplicación web que hace "
+            "funcionar este sitio."
         ),
         "landing.setup.p2": (
-            "Si te gustaría una en tu lugar, cuéntanoslo. Te ayudamos a "
-            "empezar."
+            "Acoge una estación aquí, como parte de nuestra red en "
+            "crecimiento, o toma el código y monta tu propio sitio ReFrame. "
+            "En cualquier caso, escríbenos y te ayudamos a empezar."
         ),
         "landing.setup.cta": "ACOGER UN LUGAR",
         # /locations page (v2).
@@ -164,8 +170,13 @@ STRINGS: dict[str, dict[str, str]] = {
         "locations.map_hint": "Usa dos dedos para mover el mapa",
         "locations.empty": "Aún no hay lugares. Vuelve pronto.",
         "locations.host_cta.heading": "¿Tu lugar no está en el mapa?",
-        "locations.host_cta.body": "ReFrame es de código abierto. Llévalo a tu lugar.",
-        "locations.host_cta.body_emphasis": "Te ayudaremos a montarlo.",
+        "locations.host_cta.body": (
+            "ReFrame es de código abierto y gratuito de usar. Únete a este "
+            "mapa como un nuevo lugar, o monta tu propio sitio ReFrame."
+        ),
+        "locations.host_cta.body_emphasis": (
+            "Cuéntanos sobre tu lugar y te ayudamos a empezar."
+        ),
         "locations.host_cta.action": "Acoger un lugar",
         # /acoger — community submission form (v2). Copy is a stand-in;
         # Rural Hackers to confirm before launch.
@@ -176,14 +187,13 @@ STRINGS: dict[str, dict[str, str]] = {
         ),
         "host.heading": "Acoger un lugar",
         "host.intro.p1": (
-            "Cuéntanos un sitio que merezca verse cambiar con el tiempo. "
-            "Te respondemos por correo."
+            "Cuéntanos un sitio que merezca verse cambiar — un mirador, "
+            "una orilla, una ladera que se transforma poco a poco."
         ),
         "host.intro.p2": (
-            "Algunas personas imprimen e instalan el soporte de móvil por su "
-            "cuenta a partir del modelo libre. Otras prefieren que les "
-            "echemos una mano, o solo charlar sobre si encajaría en su sitio. "
-            "Escríbenos y vemos cómo seguir."
+            "Te respondemos por correo y te ayudamos a montar una estación, "
+            "desde imprimir el soporte libre hasta elegir el ángulo — aquí "
+            "en este sitio o en uno propio."
         ),
         "host.field.email.label": "Tu correo electrónico",
         "host.field.location.label": "Lugar aproximado",
@@ -371,11 +381,14 @@ STRINGS: dict[str, dict[str, str]] = {
         "landing.intro.label": "THE PROJECT",
         "landing.intro.heading": "What is ReFrame?",
         "landing.intro.p1": (
-            "ReFrame is a community photography project from "
+            "ReFrame is a free, open-source way for a community to "
+            "photograph how its own landscape changes over time."
+        ),
+        "landing.intro.p1b": (
+            "Built by "
             "<a href=\"https://ruralhackers.com\" target=\"_blank\" rel=\"noopener\">Rural Hackers</a> "
-            "in Anceu, Galicia. We use repeat photography to record how "
-            "rural places change. The same view, taken by many people, "
-            "over many years."
+            "of Anceu, Galicia, it turns the same view — taken by many people, "
+            "over many years — into a shared timelapse anyone can add to."
         ),
         "landing.intro.p2": (
             "Each station is a 3D-printed phone holder fixed at a chosen "
@@ -408,12 +421,13 @@ STRINGS: dict[str, dict[str, str]] = {
         "landing.setup.label": "THE SEED",
         "landing.setup.heading": "Bring ReFrame to your community.",
         "landing.setup.p1": (
-            "The phone-holder design, the software, and this site are all "
-            "open source. Any community can set up its own station."
+            "Everything behind ReFrame is open source — the 3D-printed "
+            "phone holder and the web app that runs this site."
         ),
         "landing.setup.p2": (
-            "If you'd like one in your place, get in touch. We'll help you "
-            "get started."
+            "Host a station here as part of our growing network, or take "
+            "the code and run a ReFrame site of your own. Either way, get "
+            "in touch and we'll help you start."
         ),
         "landing.setup.cta": "HOST A LOCATION",
         # /locations page (v2).
@@ -426,8 +440,13 @@ STRINGS: dict[str, dict[str, str]] = {
         "locations.map_hint": "Use two fingers to move the map",
         "locations.empty": "No locations yet. Check back soon.",
         "locations.host_cta.heading": "Don't see your community here?",
-        "locations.host_cta.body": "ReFrame is open-source. Bring it to your place.",
-        "locations.host_cta.body_emphasis": "We'll help you set it up.",
+        "locations.host_cta.body": (
+            "ReFrame is open source and free to run. Join this map as a new "
+            "location, or stand up a ReFrame site of your own."
+        ),
+        "locations.host_cta.body_emphasis": (
+            "Tell us about your place and we'll help you start."
+        ),
         "locations.host_cta.action": "Host a location",
         # /host — community submission form (v2). Copy is a stand-in;
         # Rural Hackers to confirm before launch.
@@ -438,14 +457,13 @@ STRINGS: dict[str, dict[str, str]] = {
         ),
         "host.heading": "Host a location",
         "host.intro.p1": (
-            "Tell us about a place worth watching change over time. We'll "
-            "reply by email."
+            "Tell us about a place worth watching change — a viewpoint, "
+            "a shoreline, a hillside slowly transforming."
         ),
         "host.intro.p2": (
-            "Some hosts print and install the open-source phone holder "
-            "themselves. Others want a hand with that, or just to talk "
-            "through whether it would work in their spot. Write to us and "
-            "we'll figure out what makes sense."
+            "We'll reply by email and help you set up a station, from "
+            "printing the open-source holder to choosing the angle — here "
+            "on this site, or on one of your own."
         ),
         "host.field.email.label": "Your email",
         "host.field.location.label": "Rough location",

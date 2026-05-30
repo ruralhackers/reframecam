@@ -37,7 +37,7 @@ def test_landing_es_renders_marketing_sections(
     # 2 — intro section: "¿Qué es ReFrame?" plain-language explainer.
     assert "EL PROYECTO" in body
     assert "¿Qué es ReFrame?" in body
-    assert ">Rural Hackers</a> en Anceu, Galicia" in body
+    assert ">Rural Hackers</a> de Anceu, Galicia" in body
     assert 'href="https://ruralhackers.com"' in body
     # 3 — about section: label + heading (no /about link in the nav anymore).
     assert "RAÍCES COMUNES" in body
@@ -77,7 +77,7 @@ def test_landing_en_renders_marketing_sections(
     assert "Rural regeneration through the lens of community." in body
     assert "THE PROJECT" in body
     assert "What is ReFrame?" in body
-    assert ">Rural Hackers</a> in Anceu, Galicia" in body
+    assert ">Rural Hackers</a> of Anceu, Galicia" in body
     assert 'href="https://ruralhackers.com"' in body
     assert "SHARED ROOTS" in body
     assert "Where human heritage meets natural regrowth." in body
