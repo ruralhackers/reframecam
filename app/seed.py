@@ -105,6 +105,8 @@ def _clean_stations(
                 "story_en": entry["story_en"].strip(),
                 "latitude": entry.get("latitude"),
                 "longitude": entry.get("longitude"),
+                "contact_name": (entry.get("contact_name") or "").strip() or None,
+                "contact_email": (entry.get("contact_email") or "").strip() or None,
                 "status": status,
             }
         )
@@ -154,11 +156,15 @@ STATION_UPSERT_SQL = """
 INSERT INTO station (
     slug, name_es, name_en, location_slug,
     story_es, story_en,
-    latitude, longitude, status
+    latitude, longitude,
+    contact_name, contact_email,
+    status
 ) VALUES (
     :slug, :name_es, :name_en, :location_slug,
     :story_es, :story_en,
-    :latitude, :longitude, :status
+    :latitude, :longitude,
+    :contact_name, :contact_email,
+    :status
 )
 ON CONFLICT(slug) DO UPDATE SET
     name_es           = excluded.name_es,
@@ -168,6 +174,8 @@ ON CONFLICT(slug) DO UPDATE SET
     story_en          = excluded.story_en,
     latitude          = excluded.latitude,
     longitude         = excluded.longitude,
+    contact_name      = excluded.contact_name,
+    contact_email     = excluded.contact_email,
     status            = excluded.status
 """
 

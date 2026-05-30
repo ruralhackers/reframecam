@@ -48,6 +48,25 @@
       >
         <div class="host-form__row">
           <div class="host-form__field">
+            <label class="host-form__label" for="host-name">
+              {{ t('host.field.name.label', lang) }}<span
+                class="host-form__required"
+                aria-label="{{ t('host.required_indicator', lang) }}"
+                >*</span
+              >
+            </label>
+            <input
+              class="host-form__input"
+              type="text"
+              id="host-name"
+              name="name"
+              value="{{ form_name }}"
+              autocomplete="name"
+              required
+            />
+          </div>
+
+          <div class="host-form__field">
             <label class="host-form__label" for="host-email">
               {{ t('host.field.email.label', lang) }}<span
                 class="host-form__required"

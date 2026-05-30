@@ -32,6 +32,8 @@ name_es = "Bosque Comestible"
 name_en = "Anceu Food Forest"
 latitude = 42.351178   # stand-in; Rural Hackers to confirm
 longitude = -8.466424  # stand-in; Rural Hackers to confirm
+contact_name = "Anceu Coliving"  # stand-in; Rural Hackers to confirm
+# contact_email left blank on purpose — add real addresses via the admin UI
 status = "active"
 # stand-in story; Rural Hackers to revise
 story_es = """
@@ -52,6 +54,8 @@ name_es = "Casa do Pobo de Anceu"
 name_en = "Casa do Pobo de Anceu"
 latitude = 42.361249   # stand-in; Rural Hackers to confirm
 longitude = -8.466103 # stand-in; Rural Hackers to confirm
+contact_name = "Rural Hackers"  # stand-in; Rural Hackers to confirm
+# contact_email left blank on purpose — add real addresses via the admin UI
 status = "active"
 # stand-in story; Rural Hackers to revise
 story_es = """
@@ -72,6 +76,8 @@ name_es = "IES Ponte Caldelas"
 name_en = "IES Ponte Caldelas"
 latitude = 42.3897   # stand-in; Rural Hackers to confirm
 longitude = -8.5031  # stand-in; Rural Hackers to confirm
+contact_name = "IES Ponte Caldelas"  # stand-in; Rural Hackers to confirm
+# contact_email left blank on purpose — add real addresses via the admin UI
 status = "active"
 # stand-in story; Rural Hackers to revise
 story_es = """

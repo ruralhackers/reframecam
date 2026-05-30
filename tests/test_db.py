@@ -41,7 +41,14 @@ def test_drone_and_place_columns_dropped(data_root: Path) -> None:
     finally:
         conn.close()
 
-    assert {"location_slug", "latitude", "longitude", "status"} <= cols
+    assert {
+        "location_slug",
+        "latitude",
+        "longitude",
+        "contact_name",
+        "contact_email",
+        "status",
+    } <= cols
     assert "drone_video_url" not in cols
     assert "drone_video_thumb" not in cols
     assert "place_name" not in cols

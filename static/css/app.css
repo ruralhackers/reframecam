@@ -4042,6 +4042,7 @@ main:has(> .admin-app) > * {
 }
 
 .admin-form__field input[type="text"],
+.admin-form__field input[type="email"],
 .admin-form__field input[type="date"],
 .admin-form__field input[type="file"],
 .admin-form__field select,

@@ -146,6 +146,7 @@ def test_submission_noop_when_smtp_not_configured(
 
     with caplog.at_level(logging.WARNING, logger="reframe.submissions"):
         email_mod.send_submission(
+            name="Alice",
             email="me@example.com",
             location="Galicia",
             interests=["have_location"],

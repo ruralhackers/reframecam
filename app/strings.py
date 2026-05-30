@@ -93,7 +93,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "error.500.label": "ALGO FALLÓ",
         "error.500.heading": "Algo no fue bien.",
         "error.500.body": (
-            "Hemos tenido un problema en nuestro lado. Vuelve a intentarlo en un momento."
+            "Hemos tenido un problema por nuestra parte. Vuelve a intentarlo en un momento."
         ),
         "error.500.cta": "Inicio",
         # Marketing landing page ("abundant brooks" redesign). Strings are
@@ -187,7 +187,7 @@ STRINGS: dict[str, dict[str, str]] = {
         ),
         "host.heading": "Acoger un lugar",
         "host.intro.p1": (
-            "Cuéntanos un sitio que merezca verse cambiar — un mirador, "
+            "Háblanos de un sitio que merezca verse cambiar — un mirador, "
             "una orilla, una ladera que se transforma poco a poco."
         ),
         "host.intro.p2": (
@@ -195,6 +195,7 @@ STRINGS: dict[str, dict[str, str]] = {
             "desde imprimir el soporte libre hasta elegir el ángulo — aquí "
             "en este sitio o en uno propio."
         ),
+        "host.field.name.label": "Tu nombre",
         "host.field.email.label": "Tu correo electrónico",
         "host.field.location.label": "Lugar aproximado",
         "host.field.location.hint": "Donde sea, p. ej. «Cataluña, España».",
@@ -211,8 +212,8 @@ STRINGS: dict[str, dict[str, str]] = {
         "host.field.notes.label": "¿Algo más? (opcional)",
         "host.submit": "ENVIAR",
         "host.error.missing": (
-            "Añade tu correo y un lugar aproximado para que podamos "
-            "responderte."
+            "Añade tu nombre, tu correo y un lugar aproximado para que "
+            "podamos responderte."
         ),
         "host.error.invalid_email": (
             "No parece un correo válido. Revísalo e inténtalo de nuevo."
@@ -228,7 +229,7 @@ STRINGS: dict[str, dict[str, str]] = {
         # mono caps; views.station_view builds it from place + country.
         "station.hero.aria": "Imagen reciente del lugar",
         # Story section
-        "station.story.heading": "Sobre",
+        "station.story.heading": "Sobre el lugar",
         # Story stats line (§5.3, §9.3)
         "station.stats.with_photos": "{count} contribuciones desde {month} de {year}.",
         "station.stats.empty": "Sin fotos todavía.",
@@ -465,6 +466,7 @@ STRINGS: dict[str, dict[str, str]] = {
             "printing the open-source holder to choosing the angle — here "
             "on this site, or on one of your own."
         ),
+        "host.field.name.label": "Your name",
         "host.field.email.label": "Your email",
         "host.field.location.label": "Rough location",
         "host.field.location.hint": "Anywhere, e.g. \"Catalonia, Spain\".",
@@ -479,7 +481,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "host.field.notes.label": "Anything else? (optional)",
         "host.submit": "SEND",
         "host.error.missing": (
-            "Please add your email and a rough location so we can reply."
+            "Please add your name, email, and a rough location so we can reply."
         ),
         "host.error.invalid_email": (
             "That doesn't look like a valid email. Check it and try again."

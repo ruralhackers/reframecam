@@ -40,6 +40,8 @@ SCHEMA_STATEMENTS: tuple[str, ...] = (
         story_en              TEXT NOT NULL,
         latitude              REAL,
         longitude             REAL,
+        contact_name          TEXT,
+        contact_email         TEXT,
         status                TEXT NOT NULL DEFAULT 'active',
         created_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
@@ -107,6 +109,8 @@ COLUMN_ADDITIONS: tuple[tuple[str, str], ...] = (
     ("station", "location_slug TEXT REFERENCES location(slug)"),
     ("station", "latitude REAL"),
     ("station", "longitude REAL"),
+    ("station", "contact_name TEXT"),
+    ("station", "contact_email TEXT"),
     ("station", "status TEXT NOT NULL DEFAULT 'active'"),
 )
 

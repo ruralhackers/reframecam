@@ -38,6 +38,9 @@ def test_seed_rows_have_expected_columns(seeded_stations: list[str]) -> None:
     assert bc["latitude"] is not None and bc["longitude"] is not None
     assert bc["story_es"].startswith("El bosque comestible")
     assert bc["story_en"].startswith("The Anceu Food Forest")
+    # Seeded stations carry a contact name; the email is left blank for privacy.
+    assert bc["contact_name"]
+    assert bc["contact_email"] is None
 
     assert locations["anceu"]["name"] == "Anceu, Galicia"
     assert locations["anceu"]["country"] == "ES"

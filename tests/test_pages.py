@@ -130,6 +130,9 @@ def test_host_form_renders(seeded_stations: list[str]) -> None:
     assert resp.status_code == 200
     body = resp.text
     assert "Acoger un lugar" in body
+    # The name field is present and labelled.
+    assert 'name="name"' in body
+    assert "Tu nombre" in body
     # The honeypot field is present in the markup.
     assert 'name="website"' in body
     # All five interest checkboxes render.
@@ -144,7 +147,11 @@ def test_host_confirmation_renders(
 
     resp = client.post(
         "/en/host",
-        data={"email": "me@example.com", "location": "Catalonia, Spain"},
+        data={
+            "name": "Alice",
+            "email": "me@example.com",
+            "location": "Catalonia, Spain",
+        },
     )
 
     assert resp.status_code == 200
@@ -204,6 +211,7 @@ def test_host_valid_submission_sends_email(
     resp = client.post(
         "/en/host",
         data={
+            "name": "Alice Example",
             "email": "me@example.com",
             "location": "Catalonia, Spain",
             "interests": ["have_location", "can_print"],
@@ -219,6 +227,8 @@ def test_host_valid_submission_sends_email(
     assert sent[0]["Reply-To"] == "me@example.com"
     body = sent[0].get_content()
     assert "Catalonia, Spain" in body
+    # The submitter's name is carried into the notification email.
+    assert "Alice Example" in body
 
 
 def test_host_honeypot_drops_silently(
@@ -246,11 +256,11 @@ def test_host_missing_required_fields_shows_error(
 ) -> None:
     sent = configure_smtp()
 
-    resp = client.post("/en/host", data={"email": "", "location": ""})
+    resp = client.post("/en/host", data={"name": "", "email": "", "location": ""})
 
     assert resp.status_code == 200
     body = resp.text
-    assert "Please add your email and a rough location" in body
+    assert "Please add your name, email, and a rough location" in body
     # The form is shown again (not the confirmation) and nothing was sent.
     assert 'name="email"' in body
     assert sent == []
@@ -267,7 +277,8 @@ def test_host_invalid_email_shows_format_error(
     sent = configure_smtp()
 
     resp = client.post(
-        "/en/host", data={"email": bad_email, "location": "Barcelona"}
+        "/en/host",
+        data={"name": "Alice", "email": bad_email, "location": "Barcelona"},
     )
 
     assert resp.status_code == 200

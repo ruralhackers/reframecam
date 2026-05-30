@@ -1264,9 +1264,13 @@ def _station_form_fields(
     story_en: str,
     latitude: str,
     longitude: str,
+    contact_name: str,
+    contact_email: str,
 ) -> dict:
     """Normalise the shared station form fields. English doubles for Spanish
-    when Spanish is left blank (English-only forks)."""
+    when Spanish is left blank (English-only forks). Contact name is required
+    (validated by the caller); contact email is optional and stored as None
+    when blank."""
     name_en = name_en.strip()
     name_es = name_es.strip() or name_en
     story_en = story_en.strip()
@@ -1287,6 +1291,8 @@ def _station_form_fields(
         "story_en": story_en,
         "latitude": _coord(latitude),
         "longitude": _coord(longitude),
+        "contact_name": contact_name.strip(),
+        "contact_email": contact_email.strip() or None,
     }
 
 
@@ -1301,6 +1307,8 @@ async def admin_station_create(
     story_en: str = Form(default=""),
     latitude: str = Form(default=""),
     longitude: str = Form(default=""),
+    contact_name: str = Form(default=""),
+    contact_email: str = Form(default=""),
     from_location: str = Form(default=""),
     authorization: str | None = Header(default=None),
 ):
@@ -1313,12 +1321,13 @@ async def admin_station_create(
     origin_qs = f"&location={origin}" if origin else ""
     fields = _station_form_fields(
         name_es, name_en, location_slug, story_es, story_en,
-        latitude, longitude,
+        latitude, longitude, contact_name, contact_email,
     )
     if (
         not _valid_slug(station_slug)
         or not fields["name_en"]
         or not fields["story_en"]
+        or not fields["contact_name"]
     ):
         return RedirectResponse(
             url=f"/admin/{slug}/stations/new?error=invalid{origin_qs}", status_code=303
@@ -1346,13 +1355,14 @@ async def admin_station_create(
             """
             INSERT INTO station (
                 slug, name_es, name_en, location_slug, story_es, story_en,
-                latitude, longitude, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'draft')
+                latitude, longitude, contact_name, contact_email, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft')
             """,
             (
                 station_slug, fields["name_es"], fields["name_en"],
                 fields["location_slug"], fields["story_es"], fields["story_en"],
                 fields["latitude"], fields["longitude"],
+                fields["contact_name"], fields["contact_email"],
             ),
         )
     finally:
@@ -1413,6 +1423,8 @@ async def admin_station_update(
     story_en: str = Form(default=""),
     latitude: str = Form(default=""),
     longitude: str = Form(default=""),
+    contact_name: str = Form(default=""),
+    contact_email: str = Form(default=""),
     status: str = Form(default="draft"),
     from_location: str = Form(default=""),
     authorization: str | None = Header(default=None),
@@ -1420,10 +1432,16 @@ async def admin_station_update(
     _admin_guard(slug, authorization)
 
     origin = _clean_from_location(from_location)
+    origin_qs = f"&from_location={origin}" if origin else ""
     fields = _station_form_fields(
         name_es, name_en, location_slug, story_es, story_en,
-        latitude, longitude,
+        latitude, longitude, contact_name, contact_email,
     )
+    if not fields["name_en"] or not fields["story_en"] or not fields["contact_name"]:
+        return RedirectResponse(
+            url=f"/admin/{slug}/stations/{station_slug}?error=invalid{origin_qs}",
+            status_code=303,
+        )
     if status not in views.STATION_STATUSES:
         status = "draft"
 
@@ -1447,13 +1465,15 @@ async def admin_station_update(
             UPDATE station SET
                 name_es = ?, name_en = ?, location_slug = ?,
                 story_es = ?, story_en = ?,
-                latitude = ?, longitude = ?, status = ?
+                latitude = ?, longitude = ?,
+                contact_name = ?, contact_email = ?, status = ?
             WHERE slug = ?
             """,
             (
                 fields["name_es"], fields["name_en"], fields["location_slug"],
                 fields["story_es"], fields["story_en"],
                 fields["latitude"], fields["longitude"],
+                fields["contact_name"], fields["contact_email"],
                 status, station_slug,
             ),
         )
@@ -1464,7 +1484,6 @@ async def admin_station_update(
         # Clamped to draft — stay on the station page so the admin sees the
         # explanation alongside the readiness rail. Keep the origin so the
         # next save still returns to the right place.
-        origin_qs = f"&from_location={origin}" if origin else ""
         target = (
             f"/admin/{slug}/stations/{station_slug}?notice=forced_draft{origin_qs}"
         )
@@ -1686,6 +1705,7 @@ def _render_host(
     *,
     submitted: bool,
     error: str | None = None,
+    form_name: str = "",
     form_email: str = "",
     form_location: str = "",
     form_notes: str = "",
@@ -1701,6 +1721,7 @@ def _render_host(
             "error": error,
             "interests": views.SUBMISSION_INTERESTS,
             "form_action": views.host_path(lang),
+            "form_name": form_name,
             "form_email": form_email,
             "form_location": form_location,
             "form_notes": form_notes,
@@ -1724,6 +1745,7 @@ async def host_submit(
     request: Request,
     background_tasks: BackgroundTasks,
     lang: str,
+    name: str = Form(default=""),
     email: str = Form(default=""),
     location: str = Form(default=""),
     notes: str = Form(default=""),
@@ -1738,10 +1760,11 @@ async def host_submit(
         _submissions_log.info("submission honeypot tripped — dropped")
         return _render_host(request, lang, submitted=True)
 
+    name = name.strip()
     email = email.strip()
     location = location.strip()
     error_key: str | None = None
-    if not email or not location:
+    if not name or not email or not location:
         error_key = "host.error.missing"
     elif not _EMAIL_RE.match(email):
         error_key = "host.error.invalid_email"
@@ -1752,6 +1775,7 @@ async def host_submit(
             lang,
             submitted=False,
             error=error_key,
+            form_name=name,
             form_email=email,
             form_location=location,
             form_notes=notes,
@@ -1760,6 +1784,7 @@ async def host_submit(
 
     background_tasks.add_task(
         send_submission,
+        name=name,
         email=email,
         location=location,
         interests=interests,

@@ -38,13 +38,14 @@ INTEREST_LABELS: dict[str, str] = {
 
 
 def _build_message(
-    *, email: str, location: str, interests: list[str], notes: str
+    *, name: str, email: str, location: str, interests: list[str], notes: str
 ) -> EmailMessage:
     smtp = config.settings.smtp
 
     lines = [
         "New ReFrame location submission.",
         "",
+        f"Name:           {name}",
         f"Email:          {email}",
         f"Rough location: {location}",
         "",
@@ -69,7 +70,7 @@ def _build_message(
 
 
 def send_submission(
-    *, email: str, location: str, interests: list[str], notes: str
+    *, name: str, email: str, location: str, interests: list[str], notes: str
 ) -> None:
     """Send one submission email. Swallows and logs every failure.
 
@@ -85,7 +86,7 @@ def send_submission(
         return
 
     message = _build_message(
-        email=email, location=location, interests=interests, notes=notes
+        name=name, email=email, location=location, interests=interests, notes=notes
     )
 
     try:

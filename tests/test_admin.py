@@ -748,22 +748,50 @@ def test_admin_create_station_is_draft(
             "name_en": "New Spot",
             "location_slug": "anceu",
             "story_en": "A new story.",
+            "contact_name": "Site Contact",
         },
     )
     assert resp.status_code == 303
     row = db_conn.execute(
-        "SELECT status, name_es, name_en FROM station WHERE slug = ?", ("new-spot",)
+        "SELECT status, name_es, name_en, contact_name, contact_email "
+        "FROM station WHERE slug = ?",
+        ("new-spot",),
     ).fetchone()
     assert row is not None
     # A fresh station has no seed references, so it must be a draft.
     assert row["status"] == "draft"
     # English doubles for Spanish when Spanish is left blank.
     assert row["name_es"] == "New Spot"
+    # Contact name persists; the optional email is left blank → stored as NULL.
+    assert row["contact_name"] == "Site Contact"
+    assert row["contact_email"] is None
     # After creating, land on the new station's edit page with a "created" toast.
     assert (
         resp.headers["location"]
         == f"/admin/{ADMIN_SLUG}/stations/new-spot?notice=created"
     )
+
+
+def test_admin_create_station_requires_contact_name(
+    admin_settings: None, seeded_stations: list[str], db_conn: sqlite3.Connection
+) -> None:
+    resp = client.post(
+        f"/admin/{ADMIN_SLUG}/stations/new",
+        headers=_basic_auth_header(),
+        data={
+            "station_slug": "no-contact",
+            "name_en": "No Contact",
+            "location_slug": "anceu",
+            "story_en": "A new story.",
+            # contact_name omitted — must be rejected.
+        },
+    )
+    assert resp.status_code == 303
+    assert "error=invalid" in resp.headers["location"]
+    row = db_conn.execute(
+        "SELECT slug FROM station WHERE slug = ?", ("no-contact",)
+    ).fetchone()
+    assert row is None
 
 
 def test_admin_create_station_edit_page_shows_created_toast(
@@ -777,6 +805,7 @@ def test_admin_create_station_edit_page_shows_created_toast(
             "name_en": "New Spot",
             "location_slug": "anceu",
             "story_en": "A new story.",
+            "contact_name": "Site Contact",
         },
     )
     resp = client.get(
@@ -800,6 +829,7 @@ def test_admin_update_station_redirects_to_list_with_saved_toast(
             "location_slug": "anceu",
             "story_en": "Story.",
             "status": "draft",
+            "contact_name": "Site Contact",
         },
     )
     assert resp.status_code == 303
@@ -867,6 +897,7 @@ def test_admin_cannot_activate_station_without_readiness(
             "location_slug": "anceu",
             "story_en": "Story.",
             "status": "active",
+            "contact_name": "Site Contact",
         },
     )
     assert resp.status_code == 303
@@ -1071,6 +1102,7 @@ def test_save_station_with_origin_redirects_to_location(
             "story_en": "Story.",
             "status": "draft",
             "from_location": "anceu",
+            "contact_name": "Site Contact",
         },
     )
     assert resp.status_code == 303
@@ -1088,6 +1120,7 @@ def test_save_station_without_origin_redirects_to_stations(
             "location_slug": "anceu",
             "story_en": "Story.",
             "status": "draft",
+            "contact_name": "Site Contact",
         },
     )
     assert resp.status_code == 303
@@ -1106,6 +1139,7 @@ def test_create_station_from_location_keeps_origin_on_edit_page(
             "location_slug": "anceu",
             "story_en": "Story.",
             "from_location": "anceu",
+            "contact_name": "Site Contact",
         },
     )
     assert resp.status_code == 303

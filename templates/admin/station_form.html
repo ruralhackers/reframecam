@@ -155,6 +155,25 @@
         </label>
       </section>
 
+      <section class="admin-form__section">
+        <h2 class="admin-section-label">Contacto</h2>
+
+        <label class="admin-form__field">
+          <span class="admin-form__label">Nombre de contacto<span class="admin-form__required" aria-hidden="true">*</span></span>
+          <input type="text" name="contact_name" required maxlength="200"
+                 value="{{ s.contact_name if view.is_edit and s.contact_name else '' }}" />
+          <span class="admin-form__hint">
+            Quién mantiene esta estación, por si surge un problema.
+          </span>
+        </label>
+
+        <label class="admin-form__field">
+          <span class="admin-form__label">Email de contacto — opcional</span>
+          <input type="email" name="contact_email" maxlength="254"
+                 value="{{ s.contact_email if view.is_edit and s.contact_email else '' }}" />
+        </label>
+      </section>
+
       {% if view.is_edit %}
         {# Status lives inside the form so it submits with everything else,
            but is rendered visually in the right rail via CSS positioning of
